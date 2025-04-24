@@ -1,0 +1,151 @@
+CREATE TABLE customer
+(
+  email VARCHAR NOT NULL,
+  password VARCHAR NOT NULL,
+  name VARCHAR NOT NULL,
+  birthdate DATE NOT NULL,
+  phonenumber VARCHAR NULL,
+  country VARCHAR NOT NULL,
+  city VARCHAR NOT NULL,
+  street VARCHAR NOT NULL,
+  building_info VARCHAR NULL,
+  postcode VARCHAR NOT NULL,
+  PRIMARY KEY (email)
+);
+
+CREATE TABLE orders
+(
+  order_number INT NOT NULL,
+  order_date DATE NOT NULL,
+  deduction VARCHAR NOT NULL,
+  subtotal VARCHAR NOT NULL,
+  sum_subtotal NUMERIC NOT NULL,
+  grand_total NUMERIC NOT NULL,
+  email VARCHAR NOT NULL,
+  PRIMARY KEY (order_number),
+  FOREIGN KEY (email) REFERENCES customer(email)
+);
+
+CREATE TABLE payment_method
+(
+  payment_method_id INT NOT NULL,
+  email VARCHAR NOT NULL,
+  order_number INT NOT NULL,
+  PRIMARY KEY (payment_method_id, order_number),
+  FOREIGN KEY (email) REFERENCES customer(email),
+  FOREIGN KEY (order_number) REFERENCES orders(order_number)
+);
+
+CREATE TABLE credit_card
+(
+  credit_card_id INT NOT NULL,
+  verification_code VARCHAR NOT NULL,
+  card_number INT NOT NULL,
+  cc_expiry_date DATE NOT NULL,
+  name_on_card VARCHAR NOT NULL,
+  is_default VARCHAR NOT NULL,
+  payment_method_id INT NOT NULL,
+  order_number INT NOT NULL,
+  PRIMARY KEY (credit_card_id),
+  FOREIGN KEY (payment_method_id, order_number) REFERENCES payment_method(payment_method_id, order_number)
+);
+
+CREATE TABLE gift_card
+(
+  gift_card_id INT NOT NULL,
+  current_balances NUMERIC NOT NULL,
+  total_amount NUMERIC NOT NULL,
+  gc_expiry_date DATE NOT NULL,
+  serial_number VARCHAR NOT NULL,
+  payment_method_id INT NOT NULL,
+  order_number INT NOT NULL,
+  PRIMARY KEY (gift_card_id),
+  FOREIGN KEY (payment_method_id, order_number) REFERENCES payment_method(payment_method_id, order_number)
+);
+
+CREATE TABLE category
+(
+  category_id INT NOT NULL,
+  category_type VARCHAR NOT NULL,
+  PRIMARY KEY (category_id)
+);
+
+CREATE TABLE wishlist
+(
+  wishlist_id INT NOT NULL,
+  product_quantity INT NOT NULL,
+  email VARCHAR NOT NULL,
+  PRIMARY KEY (wishlist_id),
+  FOREIGN KEY (email) REFERENCES customer(email)
+);
+
+CREATE TABLE delivery
+(
+  track_number INT NOT NULL,
+  date_of_delivery DATE NOT NULL,
+  delivery_status VARCHAR NOT NULL,
+  email VARCHAR NOT NULL,
+  order_number INT NOT NULL,
+  PRIMARY KEY (track_number, order_number),
+  FOREIGN KEY (email) REFERENCES customer(email),
+  FOREIGN KEY (order_number) REFERENCES orders(order_number)
+);
+
+CREATE TABLE return
+(
+  ticket_number INT NOT NULL,
+  start_date DATE NOT NULL,
+  due_date DATE NOT NULL,
+  return_status VARCHAR NOT NULL,
+  return_fee NUMERIC NOT NULL,
+  refund_total NUMERIC NOT NULL,
+  order_number INT NOT NULL,
+  PRIMARY KEY (ticket_number),
+  FOREIGN KEY (order_number) REFERENCES orders(order_number)
+);
+
+CREATE TABLE product
+(
+  product_number INT NOT NULL,
+  short_name VARCHAR NOT NULL,
+  brand VARCHAR NULL,
+  color VARCHAR NULL,
+  weight FLOAT NULL,
+  price NUMERIC NOT NULL,
+  dimensions VARCHAR NULL,
+  stock_quantity INT NOT NULL,
+  textual_description VARCHAR NULL,
+  is_available VARCHAR NOT NULL,
+  warranty_period VARCHAR NULL,
+  ticket_number INT NULL,
+  category_id INT NOT NULL,
+  wishlist_id INT NULL,
+  PRIMARY KEY (product_number),
+  FOREIGN KEY (ticket_number) REFERENCES return(ticket_number),
+  FOREIGN KEY (category_id) REFERENCES category(category_id),
+  FOREIGN KEY (wishlist_id) REFERENCES wishlist(wishlist_id)
+);
+
+CREATE TABLE review
+(
+  review_number INT NOT NULL,
+  review_date DATE NOT NULL,
+  review_text VARCHAR NULL,
+  ranking INT NOT NULL,
+  email VARCHAR NOT NULL,
+  product_number INT NOT NULL,
+  PRIMARY KEY (review_number),
+  FOREIGN KEY (email) REFERENCES customer(email),
+  FOREIGN KEY (product_number) REFERENCES product(product_number)
+);
+
+CREATE TABLE ordered_item
+(
+  ordered_item_id INT NOT NULL,
+  ordered_quantity INT NOT NULL,
+  order_number INT NOT NULL,
+  product_number INT NOT NULL,
+  PRIMARY KEY (ordered_item_id)
+  FOREIGN KEY (order_number) REFERENCES orders(order_number),
+  FOREIGN KEY (product_number) REFERENCES product(product_number)
+);

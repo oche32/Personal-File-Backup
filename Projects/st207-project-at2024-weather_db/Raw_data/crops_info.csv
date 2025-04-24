@@ -1,0 +1,301 @@
+CropID,CropName,TempMinC,TempMaxC,RainMinMM,RainMaxMM,AirPoll_CO,AirPoll_NO,AirPoll_NO2,AirPoll_O3,AirPoll_SO2,AirPoll_PM2_5,AirPoll_PM10,AirPoll_NH3,GrowthCycleDays,PreferredSoilType
+1,Wheat,5,25,400,1200,Medium,Low,Medium,Low,Medium,Medium,High,Medium,120,Loamy
+2,Rice,10,30,800,2000,High,Low,Low,Medium,Low,Medium,Low,Medium,150,Clay
+3,Maize (Corn),12,35,500,900,Medium,Low,Medium,Medium,Low,Low,Medium,High,110,Loamy
+4,Soybeans,10,30,500,1000,Medium,Medium,Low,Medium,Low,Medium,Medium,Low,100,Silty Loam
+5,Barley,5,23,400,800,Low,Low,Medium,Medium,Medium,Low,Medium,Medium,90,Loamy
+6,Potatoes,7,24,500,1200,Medium,Low,Medium,Low,Low,Medium,Low,Medium,120,Loamy
+7,Tomatoes,15,32,400,800,Low,Low,Medium,Low,Medium,Medium,Medium,Medium,90,Sandy Loam
+8,Onions,13,25,300,600,Medium,Medium,Low,Medium,Low,Low,Medium,Low,120,Sandy Loam
+9,Carrots,7,25,400,700,Low,Low,Medium,Low,Medium,Low,Medium,Low,80,Loamy
+10,Peanuts,18,35,500,1000,Medium,Low,Medium,Medium,Low,Medium,Medium,High,120,Sandy Loam
+11,Cotton,16,35,500,800,Low,Low,Medium,High,Low,Medium,High,Medium,160,Sandy Loam
+12,Sugarcane,18,38,1200,1600,Medium,Medium,Low,Medium,Low,Low,Medium,High,300,Clay Loam
+13,Rapeseed (Canola),7,25,400,800,Low,Low,Medium,Medium,Medium,Medium,Low,Medium,150,Loamy
+14,Lettuce,8,25,300,500,Medium,Low,Low,Low,Medium,Medium,Low,Low,60,Loamy
+15,Cabbage,7,24,400,700,Low,Low,Medium,Low,Low,Medium,Medium,Medium,80,Loamy
+16,Broccoli,12,25,400,600,Medium,Medium,Low,Medium,Low,Low,Medium,Low,70,Silty Loam
+17,Cauliflower,10,25,400,700,Low,Low,Medium,Low,Medium,Medium,Low,Medium,80,Loamy
+18,Sunflowers,8,30,400,700,Medium,Medium,Low,High,Low,Low,Medium,Medium,90,Loamy
+19,Millet,12,32,250,700,Low,Low,Medium,Medium,Low,Medium,Low,Medium,80,Sandy Loam
+20,Sorghum,15,35,300,800,Medium,Low,Medium,Low,Medium,Low,Medium,Medium,110,Loamy
+21,Chickpeas,10,30,300,600,Low,Low,Low,Medium,Low,Low,Medium,Medium,100,Loamy
+22,Green Beans,15,30,400,800,Medium,Low,Low,Medium,Low,Medium,Medium,High,60,Sandy Loam
+23,Green Peas,10,27,400,700,Low,Low,Medium,Low,Medium,Low,Medium,Medium,70,Loamy
+24,Garlic,12,24,300,600,Medium,Low,Medium,Low,Low,Medium,Low,Low,120,Sandy Loam
+25,Chili Peppers,18,32,500,800,Low,Low,Medium,Medium,Low,Low,Medium,Medium,90,Loamy
+26,Bananas,18,35,1000,2000,Medium,Low,Low,Medium,Low,Low,Medium,High,300,Clay Loam
+27,Pineapples,18,32,800,1500,Low,Medium,Low,Medium,Low,Low,Medium,Low,365,Sandy Loam
+28,Strawberries,10,28,400,700,Medium,Low,Low,Low,Low,Medium,Low,Medium,90,Loamy
+29,Watermelons,18,35,400,600,Low,Low,Medium,Medium,Low,Low,Medium,Medium,90,Sandy Loam
+30,Pumpkins,15,30,400,800,Medium,Low,Medium,Low,Medium,Low,Medium,Medium,100,Loamy
+31,Mangoes,20,38,700,1500,Low,Medium,Low,Medium,Low,Medium,Medium,Medium,200,Clay Loam
+32,Apples,5,25,600,1000,Medium,Medium,Low,Low,Medium,Low,Low,Medium,180,Loamy
+33,Grapes,10,32,500,800,Low,Low,Medium,Low,Low,Low,Medium,Medium,150,Sandy Loam
+34,Peaches,10,30,600,900,Medium,Low,Low,Medium,Low,Medium,Low,Medium,140,Silty Loam
+35,Pears,5,25,600,1000,Low,Low,Medium,Medium,Medium,Medium,Low,Medium,160,Loamy
+36,Plums,5,27,500,900,Medium,Medium,Low,Low,Low,Medium,Medium,Medium,140,Loamy
+37,Olives,10,35,300,600,Low,Low,Medium,Medium,Low,Medium,Medium,Low,180,Calcareous
+38,Almonds,10,30,300,600,Medium,Low,Low,Medium,Low,Medium,Medium,High,200,Loamy
+39,Hazelnuts,7,25,500,1000,Low,Low,Medium,Low,Medium,Low,Medium,Medium,240,Loamy
+40,Walnuts,7,27,600,1200,Medium,Medium,Low,Low,Low,Medium,Medium,Medium,250,Clay Loam
+41,Sesame,18,35,500,800,Low,Low,Medium,Medium,Low,Low,Medium,Medium,100,Sandy Loam
+42,Mustard,10,30,400,800,Medium,Low,Medium,Low,Medium,Low,Medium,Medium,100,Loamy
+43,Quinoa,8,30,300,600,Low,Low,Medium,Medium,Low,Medium,Low,Medium,120,Loamy
+44,Buckwheat,10,28,500,1000,Medium,Low,Medium,Low,Low,Low,Medium,Medium,80,Sandy Loam
+45,Oats,5,20,400,900,Low,Low,Medium,Low,Medium,Medium,Medium,Low,90,Loamy
+46,Rye,5,25,300,600,Low,Low,Medium,Medium,Low,Low,Medium,Medium,110,Sandy Loam
+47,Triticale,5,25,400,900,Medium,Low,Low,Medium,Low,Medium,Medium,Medium,100,Loamy
+48,Lentils,10,28,300,600,Low,Low,Low,Medium,Medium,Low,Medium,High,100,Loamy
+49,Kidney Beans,15,30,500,800,Medium,Low,Medium,Low,Low,Medium,Medium,High,90,Sandy Loam
+50,Black Beans,18,32,600,900,Low,Low,Medium,Low,Low,Medium,Medium,High,100,Loamy
+51,Green Gram (Mung),20,35,600,900,Medium,Low,Low,Medium,Low,Low,Medium,Medium,60,Loamy
+52,Safflower,10,30,200,600,Low,Low,Medium,High,Low,Low,Medium,Medium,120,Sandy Loam
+53,Linseed (Flax),8,25,400,600,Medium,Low,Low,Medium,Low,Medium,Medium,Low,120,Loamy
+54,Fennel,10,25,500,700,Low,Low,Medium,Low,Low,Medium,Low,Medium,90,Silty Loam
+55,Cumin,15,30,200,300,Medium,Low,Medium,Low,Low,Low,Medium,Medium,120,Sandy Loam
+56,Coriander,10,28,300,500,Low,Low,Low,Medium,Low,Medium,Low,Medium,45,Loamy
+57,Turmeric,18,35,1000,2000,Medium,Medium,Low,Medium,Low,Medium,Medium,Low,200,Loamy
+58,Ginger,20,30,1500,3000,Low,Low,Medium,Low,Medium,Medium,Low,Medium,210,Sandy Loam
+59,Cardamom,15,35,1500,3000,Medium,Medium,Low,Low,Low,Low,Medium,Medium,240,Loamy
+60,Vanilla,18,32,1500,3000,Low,Low,Low,Medium,Low,Low,Medium,Medium,360,Sandy Loam
+61,Tea,15,30,1500,2500,Medium,Medium,Low,Low,Medium,Low,Medium,Low,365,Acidic Loam
+62,Coffee,15,28,1200,2000,Low,Low,Medium,Low,Low,Low,Medium,Medium,365,Loamy
+63,Cocoa,20,32,1500,2500,Medium,Medium,Low,Medium,Low,Low,Medium,High,365,Loamy
+64,Rubber,20,35,2000,3000,Low,Medium,Medium,Low,Medium,Low,Medium,Low,365,Lateritic
+65,Jute,20,35,1500,2000,Medium,Low,Low,Medium,Low,Medium,Medium,High,120,Loamy
+66,Hemp,15,27,600,900,Low,Low,Medium,Low,Low,Medium,Medium,Medium,120,Loamy
+67,Kenaf,18,35,600,900,Medium,Low,Low,Medium,Low,Medium,Low,High,110,Sandy Loam
+68,Tobacco,15,32,600,800,Low,Low,Medium,Medium,Low,Medium,Medium,Medium,100,Sandy Loam
+69,Papaya,20,35,1000,2000,Medium,Medium,Low,Low,Low,Medium,Medium,Medium,200,Loamy
+70,Guava,15,30,1000,2000,Low,Low,Medium,Medium,Low,Medium,Low,Medium,180,Sandy Loam
+71,Spinach,5,20,300,600,Low,Low,Low,Medium,Low,Medium,Low,Medium,45,Loamy
+72,Amaranth,20,35,400,900,Medium,Low,Medium,Low,Low,Medium,Medium,High,60,Loamy
+73,Okra,18,35,500,900,Low,Low,Medium,Medium,Low,Low,Medium,Medium,65,Sandy Loam
+74,Eggplants,15,35,600,800,Medium,Low,Low,Medium,Low,Medium,Medium,High,80,Loamy
+75,Zucchini,15,30,400,600,Low,Low,Medium,Low,Medium,Low,Medium,Medium,50,Sandy Loam
+76,Cucumbers,15,35,400,800,Medium,Low,Low,Medium,Low,Medium,Medium,High,60,Loamy
+77,Celery,10,25,600,800,Low,Low,Medium,Low,Low,Low,Medium,Medium,80,Silty Loam
+78,Radish,8,25,300,700,Medium,Low,Low,Low,Medium,Low,Medium,Low,30,Loamy
+79,Beets,10,25,400,700,Low,Low,Medium,Low,Low,Low,Medium,Medium,60,Sandy Loam
+80,Sweet Potatoes,18,30,750,1500,Medium,Low,Medium,Low,Low,Medium,Medium,High,120,Loamy
+81,Cassava,20,35,1000,1500,Low,Medium,Low,Medium,Low,Low,Medium,Medium,270,Sandy Loam
+82,Arrowroot,18,30,1500,2000,Medium,Low,Medium,Low,Low,Low,Medium,Medium,200,Loamy
+83,Yams,20,32,1200,2000,Low,Low,Medium,Medium,Low,Low,Medium,Medium,240,Sandy Loam
+84,Taro,15,35,1500,3000,Medium,Medium,Low,Low,Low,Low,Medium,Medium,200,Loamy
+85,Lotus Root,15,30,1000,2000,Low,Low,Medium,Medium,Low,Low,Medium,Medium,180,Clay
+86,Basil,15,30,300,600,Medium,Low,Low,Low,Medium,Low,Medium,High,60,Loamy
+87,Parsley,10,28,400,700,Low,Low,Medium,Low,Low,Medium,Medium,Medium,70,Loamy
+88,Rosemary,10,28,300,600,Low,Low,Low,Medium,Low,Low,Medium,Medium,90,Sandy Loam
+89,Oregano,13,28,300,600,Medium,Low,Low,Low,Medium,Low,Medium,Medium,80,Loamy
+90,Sage,10,25,200,500,Low,Low,Medium,Medium,Low,Low,Medium,Medium,80,Sandy Loam
+91,Thyme,10,25,200,400,Medium,Low,Low,Low,Low,Medium,Medium,High,85,Sandy Loam
+92,Lavender,10,28,300,600,Low,Low,Medium,Medium,Low,Low,Medium,Medium,120,Loamy
+93,Chamomile,8,25,300,600,Medium,Low,Low,Low,Medium,Low,Medium,Medium,70,Sandy Loam
+94,Mint,10,30,600,800,Medium,Low,Medium,Low,Low,Medium,Medium,Low,60,Loamy
+95,Dill,10,28,300,500,Low,Low,Medium,Medium,Low,Low,Medium,Medium,45,Sandy Loam
+96,Lotus Seeds,20,35,1000,2000,Medium,Medium,Low,Low,Low,Low,Medium,Medium,180,Clay
+97,Hops,10,24,600,800,Low,Low,Medium,Low,Medium,Low,Medium,Medium,120,Loamy
+98,Blueberries,7,24,600,800,Medium,Low,Low,Medium,Low,Low,Medium,Medium,150,Acidic Loam
+99,Raspberries,10,28,600,800,Low,Low,Medium,Low,Low,Low,Medium,Medium,120,Loamy
+100,Blackberries,10,28,600,800,Medium,Medium,Low,Low,Medium,Low,Medium,Medium,120,Sandy Loam
+101,Azura,10,26,300,900,High,Low,Medium,Medium,Low,Medium,Medium,Low,120,Loamy
+102,Zenoria,12,28,400,850,Low,Low,Low,Low,Medium,Low,Medium,Medium,90,Sandy Loam
+103,Sunleaf,8,22,250,700,Medium,Low,Medium,High,Low,Low,High,Medium,80,Loamy
+104,Fermosa,7,20,300,600,Low,Medium,Low,Medium,Medium,Low,Medium,Low,60,Silty Loam
+105,Tricoria,15,35,400,1000,Medium,Low,Medium,Low,Low,Medium,Medium,High,110,Clay Loam
+106,Alveria,5,25,300,700,Medium,Medium,Low,Low,Medium,Medium,Low,Medium,70,Loamy
+107,Cortina,10,30,500,1200,Low,Low,Medium,Low,Low,Low,Medium,Medium,100,Sandy Loam
+108,Elvingreen,16,34,700,1500,High,Low,Low,Medium,Low,Medium,Medium,Medium,180,Loamy
+109,Forania,12,25,400,900,Medium,Medium,Medium,Low,Medium,Low,Medium,Low,90,Clay
+110,Hollum,14,28,600,1200,Low,Low,Low,High,Low,Medium,Medium,Medium,130,Loamy
+111,Mendora,5,18,300,650,Medium,Low,Low,Medium,Low,Low,High,Medium,60,Sandy Loam
+112,Miranova,9,26,400,950,Low,Low,Medium,Low,Medium,Medium,Low,High,85,Loamy
+113,Aurria,10,24,500,900,Medium,Low,Medium,Medium,Low,Medium,Medium,Low,75,Clay
+114,Valensia,8,20,350,720,Low,Medium,Low,Low,Low,Low,Medium,Medium,65,Silty Loam
+115,Costura,13,30,450,1000,Medium,Low,Low,Low,Medium,Low,High,Medium,90,Sandy Loam
+116,Feradia,15,32,600,900,High,Low,Medium,Medium,Low,Medium,Medium,Medium,120,Loamy
+117,Rovalia,6,19,280,580,Low,Low,Medium,Medium,Low,Medium,Low,High,60,Calcareous
+118,Darsil,11,27,400,800,Medium,Medium,Low,Low,Medium,Medium,Medium,Medium,80,Loamy
+119,Gledora,9,25,350,750,Low,Low,Medium,High,Low,Low,Medium,Low,70,Sandy Loam
+120,Melvania,14,33,500,1100,Medium,Low,Low,Low,Low,Medium,High,High,95,Clay Loam
+121,Arilion,10,22,300,800,Medium,Low,Medium,Medium,Low,Low,Medium,Medium,75,Loamy
+122,Botania,5,20,400,780,Low,Medium,Low,Low,Medium,Medium,Medium,Low,60,Sandy Loam
+123,Ercinus,18,35,600,1300,Medium,Low,Medium,Low,Low,Medium,High,Medium,130,Loamy
+124,Halinia,7,25,300,600,Low,Low,Low,Medium,Medium,Low,Medium,High,90,Sandy Loam
+125,Irelia,16,36,800,1400,Low,Low,Medium,High,Low,Medium,Medium,Low,150,Clay
+126,Kallista,9,28,400,800,Medium,Medium,Low,Low,Low,Low,Medium,Medium,80,Silty Loam
+127,Noramo,14,29,450,950,High,Low,Medium,Medium,Low,Medium,Medium,Medium,100,Loamy
+128,Olandra,12,30,550,1100,Low,Low,Low,Low,Medium,Low,Medium,High,85,Sandy Loam
+129,Pidari,10,26,400,700,Medium,Low,Medium,Medium,Low,Medium,Medium,Low,60,Loamy
+130,Quentana,6,18,350,650,Low,Medium,Low,Medium,Low,Low,Medium,Medium,50,Clay Loam
+131,Rexovia,10,24,300,750,Medium,Low,Low,Low,Medium,Medium,Medium,High,80,Loamy
+132,Seralla,15,35,500,1200,Low,Low,Medium,High,Low,Low,Medium,Medium,110,Clay
+133,Tarsia,5,20,280,600,Medium,Medium,Low,Low,Medium,Low,Medium,Medium,65,Silty Loam
+134,Vancalon,11,28,380,800,Low,Low,Medium,Medium,Low,Medium,Low,High,90,Loamy
+135,Wervin,16,33,700,1300,Medium,Low,Low,Low,Medium,Medium,Medium,Medium,120,Sandy Loam
+136,Zilonia,13,29,400,900,Low,Medium,Medium,Medium,Low,Low,Medium,Low,75,Loamy
+137,Adeliz,14,28,600,1200,Medium,Low,Low,Low,Low,Low,High,Medium,100,Clay Loam
+138,Betella,9,22,350,650,Low,Low,Medium,Medium,Medium,Medium,Medium,High,60,Sandy Loam
+139,Cindara,12,26,400,820,Medium,Medium,Medium,Low,Low,Medium,Low,Medium,90,Loamy
+140,Dergina,10,30,500,950,Low,Low,Low,Medium,Low,Low,Medium,Medium,80,Silty Loam
+141,Elena,5,21,320,700,Medium,Low,Medium,Low,Low,Medium,Medium,High,70,Loamy
+142,Farena,8,25,300,600,High,Low,Low,Medium,Medium,Low,Medium,Medium,60,Sandy Loam
+143,Gelsora,15,35,400,1000,Low,Medium,Medium,High,Low,Medium,Medium,Low,110,Loamy
+144,Harla,10,27,550,1100,Medium,Low,Low,Low,Low,Low,High,Medium,90,Clay Loam
+145,Iridell,7,20,280,550,Low,Low,Medium,Medium,Medium,Medium,Low,Medium,60,Loamy
+146,Jallora,14,32,600,1300,High,Low,Low,Medium,Low,Low,Medium,High,120,Sandy Loam
+147,Kedara,5,18,300,600,Medium,Medium,Low,Low,Low,Medium,Medium,Medium,55,Loamy
+148,Lantina,12,28,380,800,Low,Low,Medium,Medium,Medium,Low,Medium,High,75,Calcareous
+149,Melkor,8,24,300,750,Medium,Low,Low,High,Low,Medium,Medium,Low,80,Loamy
+150,Nexaria,11,29,450,900,Low,Medium,Medium,Low,Medium,Low,High,Medium,85,Sandy Loam
+151,Oppara,15,33,600,1100,Medium,Low,Medium,Medium,Low,Medium,Medium,Medium,100,Loamy
+152,Paldra,5,19,250,580,Low,Low,Low,Medium,Low,Low,Medium,High,60,Silty Loam
+153,Quiva,10,25,400,800,High,Low,Medium,Low,Low,Medium,Medium,Medium,70,Loamy
+154,Ramella,9,22,380,650,Low,Low,Low,High,Medium,Medium,Medium,Low,60,Sandy Loam
+155,Santara,16,36,700,1400,Medium,Low,Medium,Low,Low,Low,High,Medium,130,Loamy
+156,Tephara,7,20,300,590,Low,Medium,Medium,Medium,Low,Medium,Low,High,65,Clay Loam
+157,Ulonia,11,26,400,900,Medium,Low,Low,Low,Medium,Low,Medium,Medium,80,Loamy
+158,Vasti,10,28,500,950,Low,Medium,Medium,High,Low,Medium,High,Medium,75,Sandy Loam
+159,Wavria,13,30,550,1000,Medium,Low,Low,Low,Low,Low,Medium,High,85,Loamy
+160,Xalora,5,25,350,800,High,Medium,Medium,Low,Medium,Medium,Low,Medium,90,Silty Loam
+161,Yandira,14,31,400,1000,Low,Low,Low,Medium,Low,Low,Medium,Medium,95,Loamy
+162,Zetria,9,25,350,700,Medium,Medium,Low,Low,Low,Low,High,Medium,70,Sandy Loam
+163,Arantina,12,27,320,650,Low,Low,Medium,Medium,Medium,Low,Medium,Low,60,Loamy
+164,Bedora,6,20,280,600,Medium,Low,Low,High,Low,Medium,Medium,Medium,55,Clay Loam
+165,Cervina,15,35,600,1200,Medium,Low,Medium,Low,Medium,Low,Medium,High,110,Loamy
+166,Derita,7,21,300,650,Low,Medium,Medium,Medium,Low,Low,Medium,Medium,65,Sandy Loam
+167,Escura,8,24,350,700,Medium,Low,Low,Low,Low,Medium,Medium,High,60,Loamy
+168,Falvoria,10,28,400,950,High,Low,Medium,Medium,Medium,Low,Medium,Medium,80,Silty Loam
+169,Garmotta,12,30,500,1100,Low,Medium,Medium,Low,Low,Medium,Low,Medium,100,Loamy
+170,Hedina,14,34,600,1300,Medium,Low,Low,Medium,Low,Low,High,High,120,Sandy Loam
+171,Ishelia,10,22,280,540,Low,Low,Medium,Medium,Low,Medium,Medium,Medium,60,Loamy
+172,Jovani,13,27,400,850,High,Medium,Low,Low,Medium,Low,Medium,Low,85,Clay
+173,Kallendra,7,23,300,750,Low,Low,Medium,Medium,Low,Medium,Low,High,75,Silty Loam
+174,Leticia,9,25,350,800,Medium,Low,Low,Low,Medium,Low,High,Medium,80,Loamy
+175,Mordena,16,32,550,1200,Low,Low,Medium,High,Low,Medium,Medium,Medium,110,Sandy Loam
+176,Novira,6,18,250,500,Medium,Medium,Low,Low,Low,Low,Medium,High,55,Loamy
+177,Orania,10,24,320,720,Low,Low,Medium,Medium,Medium,Medium,Medium,Medium,75,Loamy
+178,Palziri,14,28,500,900,Medium,Low,Low,Low,Low,Low,Medium,High,90,Clay Loam
+179,Qantara,11,26,380,750,Low,Medium,Medium,High,Low,Medium,Low,Medium,65,Sandy Loam
+180,Rosina,15,33,600,1000,Medium,Low,Medium,Medium,Medium,Medium,Medium,Low,100,Loamy
+181,Sortina,5,17,300,550,Low,Low,Low,Medium,Low,Low,Medium,High,60,Silty Loam
+182,Tavora,8,20,320,650,Medium,Low,Medium,Low,Low,Medium,Medium,Medium,55,Loamy
+183,Umbra,9,23,400,800,Low,Medium,Low,Low,Medium,Low,High,High,75,Sandy Loam
+184,Verella,12,25,450,900,Medium,Low,Medium,Medium,Low,Low,Medium,Low,80,Loamy
+185,Wendola,14,30,600,1100,High,Low,Low,Low,Medium,Medium,Medium,Medium,95,Calcareous
+186,Xeres,10,26,400,700,Low,Low,Medium,High,Low,Medium,High,Low,60,Loamy
+187,Ylora,16,36,550,1200,Medium,Medium,Low,Low,Low,Low,Medium,High,130,Sandy Loam
+188,Zarinta,7,19,280,560,Low,Low,Medium,Medium,Low,Medium,Low,Medium,65,Loamy
+189,Astoria,11,28,400,1000,Medium,Low,Low,Medium,Medium,Low,Medium,Medium,85,Clay Loam
+190,Branella,13,32,500,950,Low,Low,Medium,Low,Low,Medium,High,Low,90,Loamy
+191,Clarinda,6,22,300,600,Medium,Medium,Low,Medium,Low,Medium,Medium,High,55,Sandy Loam
+192,Domena,8,20,350,700,Low,Low,Low,Low,Medium,Low,Medium,Medium,50,Loamy
+193,Eldra,10,24,400,800,Medium,Low,Medium,Medium,Low,Low,Medium,Low,70,Clay
+194,Faldrina,15,34,600,1300,Low,Low,Low,High,Low,Medium,Medium,Medium,120,Silty Loam
+195,Gelina,9,26,320,750,Medium,Low,Low,Low,Medium,Medium,Low,High,65,Loamy
+196,Hyndora,12,30,400,900,Low,Medium,Medium,Medium,Low,Low,High,Medium,80,Sandy Loam
+197,Jebella,5,21,280,550,Medium,Low,Low,High,Medium,Medium,Medium,Low,55,Loamy
+198,Korellia,14,29,550,1100,Low,Low,Medium,Medium,Low,Low,Medium,High,90,Clay Loam
+199,Lanabria,11,27,450,820,Medium,Low,Low,Low,Medium,Medium,High,Medium,80,Sandy Loam
+200,Malinta,16,33,700,1300,Low,Medium,Medium,Medium,Low,Medium,Medium,High,100,Loamy
+201,Naruna,10,25,300,700,Low,Low,Medium,Medium,Low,Low,Medium,Medium,60,Sandy Loam
+202,Okash,7,22,350,600,High,Low,Low,Low,Low,Medium,Medium,High,55,Loamy
+203,Polira,12,26,400,850,Low,Medium,Medium,Medium,Low,Medium,Medium,Low,70,Silty Loam
+204,Quindora,5,18,280,570,Medium,Low,Low,High,Low,Low,Medium,Medium,50,Loamy
+205,Raviena,9,24,320,780,Medium,Medium,Medium,Low,Medium,Low,Medium,Medium,80,Sandy Loam
+206,Savina,16,34,600,1200,High,Low,Low,Medium,Low,Medium,Medium,Medium,110,Loamy
+207,Torel,8,20,300,600,Low,Low,Medium,Medium,Low,Low,High,High,65,Clay Loam
+208,Ulandra,14,28,500,900,Medium,Medium,Low,Low,Medium,Medium,Medium,Low,75,Loamy
+209,Valoria,11,30,400,1000,Low,Low,Medium,Medium,Low,Low,Medium,Medium,90,Sandy Loam
+210,Welena,5,16,280,550,Low,Medium,Medium,High,Low,Medium,Low,Medium,45,Loamy
+211,Xyphora,10,24,350,700,Medium,Low,Low,Low,Low,Low,Medium,High,70,Silty Loam
+212,Yandessa,13,31,450,950,Low,Low,Medium,Medium,Medium,Medium,High,Medium,85,Loamy
+213,Zolinda,7,21,300,650,Medium,Low,Medium,Low,Low,Low,Medium,Low,60,Sandy Loam
+214,Adaril,6,19,280,540,Low,Medium,Low,High,Medium,Medium,Medium,Medium,55,Loamy
+215,Bilora,9,26,400,800,Medium,Low,Medium,Medium,Low,Medium,Low,High,75,Clay Loam
+216,Cadori,14,29,600,1100,Low,Low,Low,Low,Low,Low,Medium,Medium,90,Loamy
+217,Dafrina,11,28,450,900,High,Medium,Medium,Low,Low,Medium,Medium,Medium,80,Sandy Loam
+218,Emsara,5,20,300,600,Low,Low,Low,Medium,Medium,Low,Medium,High,60,Loamy
+219,Feliya,15,35,700,1400,Medium,Low,Low,Medium,Low,Medium,Medium,Low,120,Clay
+220,Gorina,8,23,350,800,Low,Medium,Medium,High,Low,Low,Medium,Medium,65,Silty Loam
+221,Herint,12,27,400,870,Medium,Low,Low,Low,Medium,Medium,High,Medium,75,Loamy
+222,Izzalia,7,20,300,590,Low,Low,Medium,Medium,Low,Medium,Low,High,65,Sandy Loam
+223,Jorena,10,24,400,700,High,Low,Low,Low,Low,Low,Medium,Medium,60,Loamy
+224,Kimbell,16,36,800,1300,Medium,Medium,Low,Medium,Low,Medium,High,Medium,110,Clay Loam
+225,Lorista,5,18,280,550,Low,Low,Medium,Medium,Medium,Low,Medium,High,50,Loamy
+226,Maradell,14,29,600,1200,Medium,Low,Low,Low,Low,Low,Medium,Medium,100,Sandy Loam
+227,Nolivia,8,22,300,640,Low,Medium,Low,High,Low,Medium,Medium,Low,55,Loamy
+228,Onasti,9,25,400,900,Medium,Low,Medium,Medium,Low,Medium,Low,High,75,Silty Loam
+229,Pelora,13,30,500,1000,High,Low,Low,Low,Medium,Low,Medium,Medium,85,Loamy
+230,Qetlina,10,28,380,780,Low,Medium,Medium,High,Low,Medium,Medium,Low,70,Sandy Loam
+231,Ravita,6,19,280,550,Medium,Low,Low,Low,Low,Medium,Medium,High,55,Loamy
+232,Sayora,15,34,600,1200,Low,Low,Medium,Medium,Medium,Low,High,Medium,110,Clay
+233,Terath,9,23,350,750,Medium,Medium,Medium,Low,Low,Medium,Medium,Low,80,Silty Loam
+234,Ulprima,11,26,400,800,Low,Low,Low,Medium,Low,Low,Medium,High,65,Loamy
+235,Vetina,7,21,300,600,Medium,Low,Medium,High,Low,Medium,Low,Medium,60,Sandy Loam
+236,Wallena,12,27,450,900,High,Low,Low,Low,Low,Low,Medium,Medium,85,Loamy
+237,Xendora,14,32,700,1250,Low,Medium,Medium,Medium,Medium,Medium,High,Low,105,Clay Loam
+238,Yveena,5,20,280,580,Medium,Medium,Low,Low,Low,Low,Medium,High,55,Loamy
+239,Zaffria,10,24,320,700,Low,Low,Low,High,Low,Medium,Medium,Medium,70,Silty Loam
+240,Amoria,6,16,250,520,Medium,Low,Medium,Medium,Medium,Low,Medium,Medium,45,Loamy
+241,Belila,9,28,450,1000,Low,Low,Low,Medium,Low,Low,High,High,80,Sandy Loam
+242,Cazria,15,35,600,1300,High,Medium,Low,Low,Low,Medium,Medium,Medium,120,Loamy
+243,Delmira,8,23,400,840,Low,Low,Medium,High,Low,Low,Medium,Medium,65,Clay Loam
+244,Enavora,11,25,300,700,Medium,Low,Medium,Low,Medium,Medium,Low,High,70,Loamy
+245,Fiolla,14,29,600,1100,Low,Low,Low,Medium,Low,Low,Medium,Medium,90,Sandy Loam
+246,Golinda,5,18,280,560,Medium,Low,Medium,Low,Low,Medium,Medium,Medium,50,Loamy
+247,Haloran,12,26,350,780,Low,Medium,Low,High,Low,Medium,Low,Medium,75,Silty Loam
+248,Itzala,16,35,500,1250,Medium,Low,Medium,Medium,Low,Low,High,High,100,Loamy
+249,Jenvera,7,22,300,680,Low,Medium,Medium,Medium,Low,Medium,Medium,Low,65,Clay
+250,Kalisha,9,24,400,820,Medium,Low,Low,Low,Medium,Low,Medium,High,75,Sandy Loam
+251,Lorenya,10,28,450,950,Low,Low,Medium,Medium,Low,Medium,High,Medium,80,Loamy
+252,Majora,5,17,280,540,Medium,Low,Low,Low,Medium,Medium,Low,High,55,Silty Loam
+253,Noravia,13,30,600,1100,Low,Medium,Medium,Medium,Low,Low,Medium,Medium,100,Loamy
+254,Oriana,8,25,350,750,High,Low,Low,High,Low,Medium,Medium,Medium,75,Sandy Loam
+255,Palora,11,29,400,1000,Medium,Low,Medium,Low,Medium,Medium,High,Low,90,Loamy
+256,Qitama,14,34,700,1300,Low,Medium,Low,Medium,Low,Low,Medium,High,120,Clay Loam
+257,Revania,9,26,320,720,Medium,Medium,Low,High,Low,Medium,Medium,Low,85,Loamy
+258,Somira,5,20,300,600,Low,Low,Medium,Low,Low,Low,Medium,High,60,Sandy Loam
+259,Taheri,15,33,600,1150,Medium,Low,Low,Medium,Medium,Medium,Medium,Medium,110,Loamy
+260,Ulanta,10,24,280,650,Low,Medium,Medium,Low,Low,Medium,Low,High,65,Calcareous
+261,Venzia,8,23,350,800,Medium,Low,Medium,Medium,Low,Low,High,Medium,75,Loamy
+262,Warina,6,18,300,550,Low,Low,Low,High,Medium,Medium,Medium,Low,50,Sandy Loam
+263,Ximena,12,28,420,880,Medium,Low,Low,Low,Low,Medium,Medium,High,85,Loamy
+264,Yalissa,16,35,600,1250,Low,Low,Medium,Medium,Low,Medium,Medium,Medium,110,Clay
+265,Zemoria,7,21,300,620,Medium,Medium,Low,Low,Medium,Low,Medium,High,60,Silty Loam
+266,Arquette,10,27,380,750,Low,Low,Medium,High,Low,Medium,Low,Medium,75,Loamy
+267,Belacia,14,30,500,1050,Medium,Low,Low,Low,Medium,Low,Medium,Medium,100,Sandy Loam
+268,Cammar,5,20,300,600,Low,Low,Medium,Medium,Medium,Medium,High,Low,60,Loamy
+269,Dymella,11,28,550,1100,High,Low,Medium,Low,Low,Medium,Medium,Medium,90,Clay Loam
+270,Elazia,9,24,400,840,Medium,Medium,Low,Low,Low,Low,Medium,High,70,Loamy
+271,Folnora,6,16,280,500,Low,Low,Low,Medium,Medium,Medium,Medium,Medium,45,Sandy Loam
+272,Gensira,12,26,400,900,Medium,Low,Medium,High,Low,Low,High,Low,80,Loamy
+273,Hantara,16,34,700,1300,Low,Medium,Low,Low,Medium,Medium,Medium,High,110,Silty Loam
+274,Ilisia,14,29,500,1000,Medium,Low,Low,Medium,Low,Low,Medium,Medium,95,Loamy
+275,Jarvella,8,23,300,750,Low,Low,Medium,Low,Low,Medium,High,Medium,70,Sandy Loam
+276,Kesadia,11,27,350,820,Medium,Medium,Medium,Low,Low,Low,Medium,Low,80,Loamy
+277,Lomira,6,19,280,600,Low,Low,Low,High,Low,Medium,Medium,Medium,55,Clay Loam
+278,Mandora,9,22,300,680,Medium,Low,Medium,Medium,Low,Medium,Medium,High,65,Loamy
+279,Nertina,15,33,600,1100,Low,Low,Low,Low,Medium,Low,Medium,Medium,100,Sandy Loam
+280,Opelia,5,18,280,540,Medium,Medium,Low,Medium,Low,Low,Medium,High,50,Loamy
+281,Pegoria,10,26,400,880,Low,Low,Medium,High,Low,Medium,High,Medium,75,Clay Loam
+282,Quimara,12,30,450,900,Medium,Low,Low,Low,Medium,Low,Medium,High,85,Sandy Loam
+283,Raviela,7,21,300,630,Low,Medium,Medium,Medium,Low,Medium,Low,Low,60,Loamy
+284,Selendia,14,32,550,1150,Medium,Low,Low,Medium,Low,Low,High,Medium,95,Silty Loam
+285,Talora,8,25,350,740,Low,Low,Medium,Low,Medium,Medium,Medium,High,70,Loamy
+286,Ulrena,16,35,650,1250,Medium,Medium,Medium,High,Low,Medium,Low,Medium,110,Sandy Loam
+287,Vilia,11,28,400,800,Low,Low,Low,Low,Low,Low,Medium,Medium,75,Loamy
+288,Wenadi,9,25,350,700,High,Low,Medium,Low,Medium,Medium,Medium,Medium,60,Clay Loam
+289,Xadara,5,17,300,540,Medium,Medium,Low,High,Low,Low,Medium,High,55,Sandy Loam
+290,Yelisia,13,30,450,1000,Low,Low,Low,Medium,Low,Medium,High,Medium,90,Loamy
+291,Zarora,7,20,280,590,Medium,Low,Medium,Medium,Medium,Low,Medium,Low,65,Silty Loam
+292,Ardella,10,24,350,700,Low,Medium,Low,Low,Low,Medium,Medium,High,70,Loamy
+293,Bovira,14,28,500,900,High,Low,Medium,High,Low,Low,Medium,Medium,95,Sandy Loam
+294,Camella,8,23,300,780,Low,Low,Low,Medium,Low,Medium,High,Low,65,Loamy
+295,Dorelia,12,27,400,950,Medium,Medium,Low,Medium,Medium,Low,Medium,High,80,Clay Loam
+296,Escadia,9,25,350,840,Low,Low,Medium,High,Low,Low,Medium,Medium,75,Loamy
+297,Fellina,6,16,280,520,Medium,Low,Low,Low,Medium,Medium,Low,Medium,45,Sandy Loam
+298,Gospera,11,26,400,800,Low,Medium,Medium,Medium,Low,Low,Medium,High,65,Loamy
+299,Havira,15,35,600,1200,Medium,Low,Low,Low,Low,Medium,High,Medium,110,Clay Loam
+300,Idrila,5,19,280,550,Low,Low,Medium,Medium,Medium,Low,Medium,High,60,Loamy

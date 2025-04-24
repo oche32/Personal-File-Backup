@@ -1,0 +1,579 @@
+---
+title: "DS202W - Spring Term Summative"
+author: Candidate Number - 48372
+output: html
+self-contained: true
+jupyter: python3
+engine: jupyter
+editor:
+  render-on-save: true
+  preview: true
+---
+
+### Part 0: Preparation work: Loading Packages / Modules
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import re
+
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.decomposition import TruncatedSVD, LatentDirichletAllocation
+
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+import seaborn as sns
+from langdetect import detect
+```
+
+### Part 0: Load raw datasets
+```{python}
+# Load Consumer Complaints Dataset. 'cc' stands for consumer complaints.
+cc_df = pd.read_csv('./complaints_reduced/complaints_reduced.csv')
+
+# Load EU Debates Dataset.
+eu_df = pd.read_json('./eu_debates/train.jsonl', lines=True)
+```
+
+### Part 1 - Similarity: Consumer Complaints Database
+#### Part 1-1: Creating subsample of Consumer Complaint Dataset  
+
+<br>
+
+##### Sampling with **Simple Random Sampling (SRS)** : I will use **SRS** to take samples of cc_df (raw data) because the size of raw data is too big to work on. The biggest advantage is that SRS minimizes **selection bias**, because every record has an equal opportunity of being selected. Another advantage is that SRS is simpler and more straightforward than other sampling methods; One technical disadvantage of SRS is my machine needs to process the entire dataset at once, which might cause some memory issues. However, in contrast, other common sampling methods contain more serious issues I want to avoid: 
+
+<br>
+
+##### For **systematic sampling**, it could **introduce biases to hidden patterns or underlying periodicity**. Because systematic sampling strictly selects samples with a specified interval, it is possible for patterns to be either over or under represented.  
+##### For **cluster and stratified sampling**, they require a prior understanding of the structure of the raw dataset to set strata and clusters. However, my data is not only complicated but also very big in size, which makes these 2 methods less feasible.  
+
+<br>
+
+##### Code Explain: I have created a sample (sampled_cc_df) that contains 2% of raw data (cc_df). I specify sampling fraction, use seed to maintain reproducibility, and reset index order. After that, I observe the data structure, and use len(sampled_cc_df)/len(cc_df) to make sure the sample is indeed 2% of the population.  
+##### I made the choice **"2%"** after numerous tests. Initially, I tried 10%, 8%, or 5%, but these large sample sizes consistently resulted in a **MemoryError** in later procedures, regardless of whether I applied **dimensionality reduction (using svd)** or not."
+#### However, considering cc_df has 2,681,978 rows, even a 2% sample would still contain roughly 50,000 pieces of data, which is more than sufficient to observe meaningful similarity patterns.
+
+```{python}
+sample_fraction = 0.02
+sampled_cc_df = cc_df.sample(frac=sample_fraction, random_state=12345)
+sampled_cc_df = sampled_cc_df.reset_index(drop=True)           # reset index
+
+print(len(sampled_cc_df)/len(cc_df))
+sampled_cc_df.head(5)
+```
+
+<br>
+
+### Part 1-2: Data Cleaning
+##### Text Format Standardization
+```{python}
+complaint_col = "Consumer complaint narrative"
+
+
+sampled_cc_df[complaint_col] = (
+    sampled_cc_df[complaint_col]
+    .astype(str)                                              # Convert text to string
+    .str.lower()                                              # lowercase
+    .str.strip()                                              # strip extra spaces (e.g. leading/trailing spaces)
+)
+
+sampled_cc_df = sampled_cc_df.dropna(subset=[complaint_col])  # remove missing values
+
+def clean_text(text):
+    text = re.sub(r'\d+', '', text)                           # Remove numbers (noise reduction)
+    text = re.sub(r'[^\w\s]', '', text)                       # Remove punctuation (noise reduction)
+    return text
+
+sampled_cc_df[complaint_col] = sampled_cc_df[complaint_col].apply(clean_text)
+
+
+print(sampled_cc_df[complaint_col].describe())
+```
+
+<br>
+
+##### check the occurrence frequency of duplicate compalints.
+```{python}
+frequency = sampled_cc_df.groupby("Consumer complaint narrative").size().reset_index(name="Frequency")
+frequency = frequency[frequency["Frequency"] > 1]
+
+ordered_frequency = frequency.sort_values(by="Frequency", ascending=False)
+ordered_frequency.head(10)
+```
+
+<br>
+
+##### keep one record only for double entry complaints (See "Part 1-2 comment" for an explanation of this process)
+```{python}
+sampled_cc_df['frequency'] = sampled_cc_df.groupby(complaint_col)[complaint_col].transform('count')
+
+double_entries = sampled_cc_df[sampled_cc_df['frequency'] == 2].drop_duplicates(subset=[complaint_col])
+other_entries = sampled_cc_df[sampled_cc_df['frequency'] != 2]
+
+sampled_cc_df = pd.concat([other_entries, double_entries]).drop(columns='frequency').reset_index(drop=True)
+```
+
+#### Part 1-2 comment: 
+##### At first, I was quite surprised that there are roughly 8,000 duplicate counts, because the column "consumer complaint narrative" should be texts written by customers, so it is not intuitive to have so many duplicate complaints.
+
+<br>
+
+##### Thus, I took further action to figure out what happened. I have used to_csv() to save the output as a csv file. And after careful inspection, I realize it is very likely that customers may have used standardized complaint forms provided by companies when making complaints. Thus, **although these text messages are identical, they represent true complaints from customers who submit them, so I would not suggest removing them.**
+##### However, for complaints that have frequency number = 2, I would presume this is due to the **double entry from the same customer**. There are various reasons for customers to submit the same complaint twice: maybe they encounter Internet lagging, or maybe they have not received responses for a long time, etc. **But no matter what reason, there is only one single person behind these messages, so I will only keep one record only for double entries to avoid polluting my model.**
+
+<br>
+
+### Part 1-3: TF-IDF Feature Extraction & Dimensionality Reduction (using svd)
+##### Section 1 Explain: In this section, I create an instance of a TF-IDF vectorizer to convert text data to numerical representations, for the purpose of understanding how important one word is in a document relative to all documents. I set max_df=0.9 to ignore overly common terms (appear more than 90% of documents), and set min_df=5 to filter out terms that are too rare (noises); stop_words='english' filters out common conjunction words such as "and," "but," "so," etc., which is also for noise reduction.
+```{python}
+# Section 1
+tfidf_vectorizer = TfidfVectorizer(stop_words='english', max_df=0.9, min_df=5)
+tfidf_matrix = tfidf_vectorizer.fit_transform(sampled_cc_df[complaint_col])
+
+# observe the number of features
+print("TF-IDF matrix shape:", tfidf_matrix.shape)
+```
+
+<br>
+
+##### Section 2 Explain: In Section 1, I know that there are 10783 features in my original TF-IDF matrix. However, including all features is not good for efficiency. **My target is to capture 80% of variation**, but also include as smaller number of features as possible for **noise reduction & computational efficiency**. Thus, I need to examine how much variation is captured for different feature numbers. I will start examining from 100 to 2000 features, with a gap of 100. And I will draw a line diagram to visually demonstrate the correlation between variance and feature numbers.
+```{python}
+# Section 2
+component_range = range(100, 2001, 100)           # set range from 100 to 2000, gap = 100
+explained_variances = []
+
+for n in component_range:
+    svd = TruncatedSVD(n_components=n, random_state=12345)
+    svd.fit(tfidf_matrix)
+    cumulative_variance = np.sum(svd.explained_variance_ratio_)
+    explained_variances.append(cumulative_variance)
+    print(f"{n} unique terms/features: {cumulative_variance:.2%} variance is explained") # 2 d.p. in printing cumulative_variance
+
+# line graph
+plt.figure(figsize=(8, 5))
+plt.plot(component_range, explained_variances, marker='o', linestyle='--')
+plt.xlabel('Number of svd Components / Features')
+plt.ylabel('Cumulative Explained Variance')
+plt.title('Cumulative Explained Variance vs Number of svd Components - Consumer Complaints')
+plt.grid(True)
+plt.show()
+
+```
+
+<br>
+
+##### Section 3 Explain: In this section, I implement the dimensionality reduction (using TruncatedSVD) to the original TF-IDF matrix. In Section 2, I have proved that n = 1200 can capture 79.89% of variation (my target), which is a good balance between efficiency and information retention. To be more specific, reducing the number of unique terms (features) from 10783 to 1200 has two 2 advantages: 1, It largely improves computational efficiency 2, It filters out noises and many less important details.
+```{python}
+# Section 3
+n = 1200
+svd = TruncatedSVD(n_components = n, random_state=12345)
+tfidf_reduced = svd.fit_transform(tfidf_matrix)
+```
+
+
+### Part 1-4: Compute the Cosine Similarity Matrix for the TF-IDF vectors
+##### Explain: This part is not complicated. The first line computes the cosine similarity between every pair of documents in the TF-IDF matrix, which quantifies how similar each customer complaint is to every other customer complaint.
+```{python}
+cosine_similarity_matrix = cosine_similarity(tfidf_reduced)
+
+# this is optional, but I print the top left 5x5 matrix to test if matrix is "normal": The diagonal statistics should all be 1.
+print(cosine_similarity_matrix[:5, :5])
+```
+
+
+### Part 1-5: Grouping by different financial products
+##### Explain: I use a for loop to iterate when calculating the cosine similarity scores for each product category. Simply speaking, I group sampled_cc_df based on Product, and for each product group, I extract the relevant submatrix for each product group from the precomputed matrix (in Part 1-4), and then calculate the average cosine similarity among those documents.
+```{python}
+grouped = sampled_cc_df.groupby('Product')
+group_similarity_stats = []
+
+
+for product, group in grouped:
+    indices = group.index.values
+    
+    submatrix = cosine_similarity_matrix[np.ix_(indices, indices)]         # extract the submatrix of similarities for this product group
+    total_similarity = submatrix.sum() - len(indices)                      # remove self-similarity values (diagonals are 1's)
+    
+    count = len(indices)**2 - len(indices)                                 # total number of off-diagonal(unique) pairs = n^2 - n
+    avg_similarity = total_similarity / count
+    group_similarity_stats.append((product, len(indices), avg_similarity))
+
+
+group_similarity_df = pd.DataFrame(group_similarity_stats, columns=['Product', 'Count', 'AvgCosineSimilarity']) # define column names
+group_similarity_df = group_similarity_df.sort_values(by='AvgCosineSimilarity', ascending=False)                # decending order
+
+print("Group similarity statistics of Customer Complaints across different Financial Products:")
+print(group_similarity_df)
+```
+
+
+### Part 1-6: Bar Chart - Grouped by Products
+```{python}
+plt.figure(figsize=(12, 8))
+bars = plt.barh(group_similarity_df['Product'], group_similarity_df['AvgCosineSimilarity'], color='lightblue')
+plt.xlabel('Average Cosine Similarity')
+plt.title('Average Within-Group Document Similarity grouped by Financial Product')
+plt.gca().invert_yaxis()
+plt.xlim(0, 0.22)
+
+# include count numbers
+for bar, count in zip(bars, group_similarity_df['Count']):
+    plt.text(bar.get_width(), bar.get_y() + bar.get_height()/2, f'{count} Counts', va='center')
+
+plt.tight_layout()
+plt.show()
+```
+
+#### Part 1 - Similarity: Overall Comment
+
+<br>
+
+##### This similarity analysis leverages cosine similarity computed from TF‑IDF vectors that have been reduced via SVD to capture approximately 80% of the variance, ensuring that we focus on the most relevant features while minimizing noise. By computing the cosine similarity for the reduced vectors, we obtain a measure of how similarly each pair of consumer complaint narratives is expressed, regardless of text length or absolute term frequency. This approach emphasizes the direction of the complaint vectors—the relative importance of words—as cosine similarity focuses on the angle between vectors rather than their magnitude. This is particularly useful in text data, where consumers often use a limited and consistent vocabulary to express recurring issues.
+
+<br>
+
+##### When I group the documents by financial product, the average cosine similarity scores reveal distinct communication patterns that can serve as indicators of underlying issues. For example, product categories such as **"Money transfers," "Prepaid card," and "Debit/Credit management"** consistently exhibit **high cosine similarity values**. This indicates that within these groups, **consumers tend to use a very similar vocabulary and phrasing** when describing their experiences. Such high uniformity in language suggests that the problems encountered by these consumers may be driven by **systematic issues—potentially recurring technical failures**, standardized service procedures, or policy shortcomings that force a similar pattern of complaints. In a scenario where the root cause is consistent across cases, one would expect the narratives to reflect near-identical structures and terminology, which is exactly what the high cosine similarity scores imply. The variation in language here suggests that the issues might be more systematic, **requiring service providers conduct thorough investigations into their operational and technical processes.**
+
+<br>
+
+##### In contrast, product categories like **"Credit reporting," "Debt collection," and "Other financial service"** show significantly **lower average similarity scores**. This lower consistency in language indicates that the consumer experiences and the **issues they face in these areas vary widely**. When complaints are more individualized and nuanced, customers tend to use a broader range of descriptive language to articulate their problems. This diversity can be due to a multitude of factors—ranging from personalized issues specific to an individual’s situation, to complex scenarios that do not lend themselves to a standardized description. As a result, the cosine similarity scores drop because the relative direction of the TF‑IDF vectors diverges more across documents, reflecting a higher variability in the narratives. The variation in language here suggests that the issues might be more individualized or complex, **requiring more nuanced and personalized solutions from service providers.**
+
+<br>
+
+##### However, It is important to consider that the robustness of these conclusions depends heavily on sample sizes. While a 2% sample of a multi-million-row dataset still yields a sizable and generally representative corpus, some product categories—such as "Payday loan" with only 23 entries, "Debit/Credit management" with 47 entries, or "Other financial service" with merely 3 entries—provide **less reliable average similarity estimates due to their limited representation**. This imbalance means that while the high similarity scores in well-represented categories are likely robust, conclusions drawn from sparsely populated categories should be interpreted with caution. Future work could benefit from **targeted resampling or oversampling in these underrepresented groups** to achieve more reliable estimates.
+
+<br>
+
+##### Overall, this analysis provides a data-driven perspective on how consumer complaints differ across financial products. By highlighting consistent language patterns in some products and diversity in others, the findings offer actionable insights. **Companies with high internal similarity may need to investigate standardized service failures, while those with diverse complaint narratives might consider more tailored solutions**. This nuanced understanding of complaint uniformity underscores the potential for improving product-specific customer support strategies and addressing systemic issues within these financial domains.
+
+<br>
+
+<br>
+
+### Part 2 - Unsupervised Learning: EU Debates Dataset
+#### **Research Question: How does the focus of EU debates <span style="font-size:125%;">IN ENGLISH</span> change over time, and what trends in political discourse can be observed by analyzing the evolution of clusters in debate speeches?**
+
+<br>
+
+#### Part 2-1: Cleaning
+##### In Part 2, I will use eu_df as my raw data, to investigate my research question. But the first step is still doing cleaning work to the raw data. **Taking Samples (25% of raw data with SRS) and Text Standardization** are similar procedures I have done In Part 1 before, however, due to the special feature of this dataset, I will need to conduct a **English Filter Process.** because my research question only focus on EU debates in English.
+
+<br>
+
+##### Across all debates, only part of them are done in English. I could filter by only including the columns where language = en, which is one column already there in the raw data. However, some English words will still be used even if the whole text is classified as other languages. To keep them, I introduced **langdetect module to detect English** words to make sure all English representations are captured.
+```{python}
+# Define - langdetect: English filter
+def is_english(text):
+    try:
+        return detect(text) == 'en'
+    except:
+        return False
+
+# 25% sample with SRS
+eu_df_sample = eu_df.sample(frac=0.25, random_state=12345).reset_index(drop=True)
+
+# Apply - langdetect: English filter
+eu_df_sample = eu_df_sample[eu_df_sample['text'].apply(is_english)]
+eu_df_sample = eu_df_sample.reset_index(drop=True)
+
+
+# Text standardization
+def clean_text(text):
+    text = str(text).lower().strip()             # Convert to string, lowercase, and trim whitespace
+    text = re.sub(r'\d+', '', text)               # Remove numbers
+    text = re.sub(r'[^\w\s]', '', text)           # Remove punctuation
+    return text
+
+# Apply text standardization
+eu_df_sample['clean_text'] = eu_df_sample['text'].apply(clean_text)
+
+
+# TF-IDF Transformation
+tfidf_vectorizer = TfidfVectorizer(stop_words='english', max_df=0.9, min_df=5)
+tfidf_matrix = tfidf_vectorizer.fit_transform(eu_df_sample['clean_text'])
+print("TF-IDF matrix shape:", tfidf_matrix.shape)
+```
+
+<br>
+
+#### Part 2-2: dimensionality reduction
+
+##### In Part 1, to reach the 80% variation coverage target, I reduce the dimension of the matrix, and here I will do the same procedure. Because I already know n = 1200 for 10783 features in Part 1, and I have 12329 features for eu_df_sample, so I will not start from n = 100, instead, I will start from n = 1500 to improve efficiency.
+```{python}
+component_range = range(1500, 3001, 100)  # Testing from 1500 to 3000 with gap = 100 
+explained_variances = []
+
+for n in component_range:
+    svd_temp = TruncatedSVD(n_components=n, random_state=12345)
+    svd_temp.fit(tfidf_matrix)
+    cumulative_variance = np.sum(svd_temp.explained_variance_ratio_)
+    explained_variances.append(cumulative_variance)
+    print(f"{n} unique terms/features: {cumulative_variance:.2%} variance is explained")
+
+# line graph
+plt.figure(figsize=(8, 5))
+plt.plot(component_range, explained_variances, marker='o', linestyle='--')
+plt.xlabel('Number of SVD Components')
+plt.ylabel('Cumulative Explained Variance')
+plt.title('Cumulative Explained Variance vs Number of svd Components - EU Debates')
+plt.grid(True)
+plt.show()
+```
+
+<br>
+
+##### Based on the plot, set n_components = 2600 to reach roughly 80% variation coverage
+```{python}
+n_components = 2600
+svd = TruncatedSVD(n_components=n_components, random_state=12345)
+tfidf_reduced = svd.fit_transform(tfidf_matrix)
+print("Reduced TF-IDF matrix shape:", tfidf_reduced.shape)
+```
+
+<br>
+
+#### Part 2-3: Method 1 - K-means 
+##### After cleaning and dimension reduction, I can start working on the real unsupervised learning for eu_df_sample. The first method is K-means, where I will **partition the debate speeches into distinct clusters based on their content**, and **examine how these groupings evolve over time**, which will bring some insights to my research question.
+
+<br>
+
+##### But first, I need to decide the k value. There is no standard answer to k value determination, but the Silhouette Score can still help me sort out the performance under different k values. Despite the Silhouette Scores for text data will be quite low, due to high dimensionality and overlapping topics, they still provide a useful measure of clustering quality.
+```{python}
+# Unsupervised Learning Method 1: K-Means Clustering
+# Determine the optimal number of clusters using the silhouette score.
+sil_scores = {}
+for k in range(2,31):       # from k=2 to k=30
+    km = KMeans(n_clusters=k, random_state=12345)
+    labels = km.fit_predict(tfidf_reduced)
+    score = silhouette_score(tfidf_reduced, labels)
+    sil_scores[k] = score
+    print(f"K = {k}: Silhouette Score = {score:.5f}")
+
+```
+
+<br>
+
+##### Therefore, according to the last section, I think the optimal value of k is 15 because, before 15, the silhouette score increases significantly, but beyond that, the rate of improvement diminishes, and too many clusters can reduce interpretability.
+```{python}
+# Choose the best number of clusters based on silhouette score
+best_k = 15
+print("Best number of clusters based on silhouette score:", best_k)
+
+# Fit K-Means with the optimal number of clusters and assign cluster labels
+kmeans = KMeans(n_clusters=best_k, random_state=12345)
+eu_df_sample['cluster'] = kmeans.fit_predict(tfidf_reduced)
+print("K-Means clustering results:")
+print(eu_df_sample[['text', 'cluster']])
+```
+
+<br>
+
+##### Next step is to visualize my output. I will provide a line chart and a heat map. Both diagrams are provided to give insight on how the popularity of speech topics in EU English debates change over time.
+
+<br>
+
+##### plot: line chart - percentage change
+```{python}
+cluster_time = eu_df_sample.groupby(['year', 'cluster']).size().reset_index(name='count')
+cluster_time_pivot = cluster_time.pivot(index='year', columns='cluster', values='count').fillna(0)
+cluster_time_pivot_percent = cluster_time_pivot.apply(lambda x: x / x.sum(), axis=1)
+
+
+plt.figure(figsize=(12, 8))
+for cluster in cluster_time_pivot_percent.columns:
+    plt.plot(cluster_time_pivot_percent.index, cluster_time_pivot_percent[cluster],
+             marker='o', label=f'Cluster {cluster}')
+plt.xlabel("Year")
+plt.ylabel("Proportion of Speeches")
+plt.title("Cluster Proportions Over Time")
+plt.legend(title="Cluster", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+```
+
+<br>
+
+##### Plot: Heat Map - raw counts
+```{python}
+plt.figure(figsize=(12,8))
+sns.heatmap(cluster_time_pivot, annot=True, fmt=".0f", cmap="YlGnBu")
+plt.xlabel("Cluster")
+plt.ylabel("Year")
+plt.title("EU Debate Cluster Distribution (Raw Counts)")
+plt.tight_layout()
+plt.show()
+
+```
+
+<br>
+
+##### Cluster Profiling
+##### Now, we already have 2 diagrams. However, although our diagrams display cluster numbers, without knowing the underlying topics of those clusters, it is almost impossible to draw meaningful conclusions. Therefore, profiling each cluster by identifying its keywords is essential. In this part, I will extract the top words for each cluster to interpret the dominant themes, and to better understand what each group represents.
+```{python}
+feature_names = tfidf_vectorizer.get_feature_names_out()
+num_top_words = 15
+cluster_profiles = {}
+
+
+for cluster_label in sorted(eu_df_sample['cluster'].unique()):
+    cluster_indices = eu_df_sample.index[eu_df_sample['cluster'] == cluster_label].tolist()
+    
+    mean_vector = tfidf_matrix[cluster_indices].mean(axis=0)
+    mean_vector = np.asarray(mean_vector).flatten()
+    
+    top_indices = mean_vector.argsort()[::-1][:num_top_words]
+    top_words = [feature_names[i] for i in top_indices]
+    
+    cluster_profiles[cluster_label] = top_words
+
+
+for cluster_label, top_words in cluster_profiles.items():
+    print(f"Cluster {cluster_label}: Top words: {', '.join(top_words)}")
+
+
+```
+
+<br>
+
+#### Part 2-4: Method 2 - LDA
+##### Section 1: I use CountVectorizer to create a document-term matrix from the text, configuring it with parameters to remove common (max_df=0.9) and infrequent (min_df=5) words so that the matrix reflects meaningful raw counts preferred by LDA. (similar procedures are done in previous parts)
+
+<br>
+
+##### Section 2: I initialize the LDA model with **15 topics** (following the conclusion for the best number of clusters in K-means appraoach), then fit the model using the document-term matrix generated in step 1. 
+
+<br>
+
+##### Section 3: I extract the topic profiles by retrieving the feature names from the CountVectorizer and, for each of the 15 topics, identify the top 15 words (same as K-means approach) by sorting the topic-component weights in descending order, thereby providing a clear linguistic description of each topic. 
+
+<br>
+
+##### Section 4: I apply the LDA model to transform the document-term matrix, obtaining a probability distribution over topics for each document, and then assign each document its dominant topic by selecting the topic with the highest probability, facilitating subsequent analysis and visualization of topic trends over time.
+```{python}
+
+# Section 1
+count_vectorizer = CountVectorizer(stop_words='english', max_df=0.9, min_df=5)
+doc_term_matrix = count_vectorizer.fit_transform(eu_df_sample['text'])
+
+# Section 2
+n_topics = 15  
+lda_model = LatentDirichletAllocation(n_components=n_topics, random_state=12345)
+lda_model.fit(doc_term_matrix)
+
+# Section 3
+feature_names_count = count_vectorizer.get_feature_names_out()
+n_top_words = 15
+topic_profiles = {}
+print("LDA Topic Profiles:")
+for topic_idx, topic in enumerate(lda_model.components_):
+    top_indices = topic.argsort()[::-1][:n_top_words]
+    top_words = [feature_names_count[i] for i in top_indices]
+    topic_profiles[topic_idx] = top_words
+    print(f"Topic {topic_idx}: {', '.join(top_words)}")
+
+# Section 4
+lda_topic_assignments = lda_model.transform(doc_term_matrix)
+eu_df_sample['lda_topic'] = lda_topic_assignments.argmax(axis=1)
+```
+
+<br>
+
+##### Line diagram & Heat map
+```{python}
+topic_time = eu_df_sample.groupby(['year', 'lda_topic']).size().reset_index(name='count')
+topic_time_pivot = topic_time.pivot(index='year', columns='lda_topic', values='count').fillna(0)
+topic_time_pivot_percent = topic_time_pivot.apply(lambda x: x / x.sum(), axis=1)
+
+# Line diagram
+plt.figure(figsize=(12, 8))
+for topic in topic_time_pivot_percent.columns:
+    plt.plot(topic_time_pivot_percent.index, topic_time_pivot_percent[topic],
+             marker='o', label=f'Topic {topic}')
+plt.xlabel("Year")
+plt.ylabel("Proportion of Speeches")
+plt.title("LDA Topic Proportions Over Time")
+plt.legend(title="Topic", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+# Heat map
+plt.figure(figsize=(12, 8))
+sns.heatmap(topic_time_pivot, annot=True, fmt=".0f", cmap="YlGnBu")
+plt.xlabel("Topic")
+plt.ylabel("Year")
+plt.title("LDA Topic Distribution (Raw Counts)")
+plt.tight_layout()
+plt.show()
+
+```
+
+<br>
+
+#### Part 2-5 - Unsupervised Learning - Overall Comment:
+
+##### In my analysis, I implement two complementary unsupervised approaches—**K‑Means clustering and LDA topic modeling**—to uncover latent themes in EU English debate speeches. Both methods, despite based on distinct modeling assumptions, converge in revealing notable temporal trends in the data, which enhances the robustness of our findings.
+
+<br>
+
+#### K‑Means Clustering Perspective:
+
+<br>
+
+##### The selection of 15 clusters was supported by a relative improvement in silhouette scores, **despite the inherently low absolute values caused by high dimensionality and overlapping topic content.** The silhouette scores, which measure intra-cluster cohesion versus inter-cluster separation, indicate that the chosen k sufficiently balances model parsimony and interpretability. The **dark blue region** observed in the heat map corresponds to a statistically significant cluster characterized by high document counts—**approximately 1000 in 2011 with adjacent years around 500**, followed by a rapid decline post-2013. The top keywords associated with this cluster (e.g., **“european”, “trade”, “agreement”**) suggest a focused discourse on trade policies and internal EU economic arrangements.
+
+<br>
+
+##### Some other clusters, defined by terms such as **“budget”, “financial”, “economic”, and “crisis”**, mirrors a similar temporal pattern with higher counts between 2010 and 2012 and a subsequent drop after 2013. This alignment is further corroborated by clusters focused on **“market”, “consumers”, “social”, “young”, “employment”, and “food”**, which collectively provide quantitative evidence that, during 2010–2012, the debates were dominated by discussions on financial instability and its cascading effects on various economic and social spheres within the EU.
+
+<br>
+
+##### Notably, the K‑Means analysis also highlights a cluster defined by terms including **“rights” and “human”**, which **initially declines after 2013 but then resurges in prominence from 2019 to 2023 (5 consecutive green regions)**. An equally compelling observation is the **emergence of a cluster featuring keywords like “Ukraine”, “Russia”, and “war”**. This cluster’s **sudden increase** in document counts **during 2022 and 2023** aligns temporally with the Russia–Ukraine conflict and reflects how ongoing wars and armed conflicts have reshaped debate focus, particularly **intensifying discussions on human rights**. The simultaneous peak in clusters related to both human rights and geopolitical conflict underscores the impact of current international tensions—such as the Russia–Ukraine war and other emerging conflicts—on the EU debate narrative.
+
+<br>
+
+#### LDA Topic Modeling Perspective:
+
+<br>
+
+##### In parallel, our **LDA implementation**—applied to a CountVectorizer-derived document-term matrix—yields probabilistic topic distributions that **support the clustering insights obtained from K‑Means**. With the number of topics set to 15 (same as K-means), the LDA model extracts key topics whose top words align with the thematic clusters from the K‑Means results. For instance, **topics dominated by “trade” and “agreement” mirror the economic discussions from early years (2010-2012)**, while **topics emphasizing “rights” and “human” gain prominence in recent years (2019–2023)**. Furthermore, the surge in documents associated with the topic characterized by **“ukraine”, “russia”, and “war” in 2022–2023 quantitatively aligns with the geopolitical disruptions affecting EU debates, notably the Russia–Ukraine conflict.**
+
+<br>
+
+#### Conclusion:
+
+<br>
+
+##### The convergence of trends—observed via both hard assignments in K‑Means and soft topic distributions in LDA—provides compelling evidence that external crises (economic downturns in 2010–2012 and geopolitical conflicts in recent years) are key drivers behind shifts in debate focus. The increase in silhouette scores up to k=15 for K‑Means underscores the relative improvement in cluster compactness, whereas the LDA results add interpretative depth by explicitly modeling the underlying thematic distributions. **This dual-method strategy not only mitigates the inherent limitations of each technique but also lends greater interpretability and reliability to the model outcomes.**
+
+##### In summary, the combined results indicate a clear evolution in EU debate topics: EU debates **in English** during **early stages** (2010–2012) were predominantly centered on **addressing financial and economic challenges**, while more **recent debates** (2019-2023) have **shifted focus towards human rights and geopolitical conflicts**. This technical amalgamation of clustering and topic modeling metrics thus substantiates the inference that external events—both economic and political—have reshaped the EU debate narrative over time.
+
+<br>
+
+#### Appendix: AI usage summary:
+
+<br>
+
+##### Grammarly: I used Grammarly via the VSCode extension throughout the coding to ensure no obvious grammar errors occur. Occasionally, I also pasted parts of my narrative into Grammarly’s web interface to further refine complex sections and ensure clarity in my observations and conclusions.
+
+<br>
+
+##### DeepL: I used DeepL for 2 overall comment sessions in Part 1 and Part 2, for a more concise and precise language.
+
+<br>
+
+##### ChatGPT:
+##### Part 1:
+##### 1, I consulted ChatGPT to validate my approach for sampling the Consumer Complaints dataset, particularly in the pros and cons for different sampling methods; 2, ChatGPT provided insights on how to handle duplicate entries for consumer complaint narratives. 
+
+<br>
+
+##### Part 2: 
+##### 1, Initially, I used bar chart (both raw counts & proportions) to visualize outputs of K-means and LDA approaches, but they are not visual friendly due to too many clusters. Chatgpt suggested using Heatmap instead; 2, ChatGPT helped me in filtering out EU speeches that are not in English.
+
+<br>
+
+##### General:
+##### 1, ChatGPT suggested plotting cumulative explained variance to find n in dimensionality reduction work; 2, ChatGPT helped determine an appropriate sampling percentage for the population.

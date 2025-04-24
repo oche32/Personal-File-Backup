@@ -1,0 +1,575 @@
+---
+title: "DS202W - W10 Summative"
+author: Candidate Number - 48372
+output: html
+self-contained: true
+jupyter: python3
+engine: jupyter
+editor:
+  render-on-save: true
+  preview: true
+---
+
+### Preparation work & Loading modules
+```{python}
+import pandas as pd
+import plotnine as plt
+import numpy as np
+
+
+from sklearn.linear_model import LinearRegression, Ridge, LogisticRegression, LogisticRegressionCV
+from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, classification_report, confusion_matrix, roc_auc_score, f1_score
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.model_selection import GridSearchCV, KFold, TimeSeriesSplit
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.pipeline import Pipeline
+
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
+```
+
+### Part 1
+### Part 1-1: Read Files
+
+```{python}
+yuan = pd.read_stata("./yuan_inflation_data.dta")
+
+# observe the data structure with the first 10 rows
+yuan.head()
+```
+
+<br>
+
+### Part 1-2a: 
+
+#### Top 10 years with highest number of total wars
+```{python}
+Top10_wars = yuan.nlargest(10, 'totalwar')[['year', 'totalwar']]
+print(f"Top 10 YEARS with highest war numbers are: {Top10_wars}")
+```
+
+#### Top 10 years with highest nominal money issues
+
+##### I am still using **nlargest** instead of **nsmallest** because the column "nominal" means nominal money issues according to its README file.
+```{python}
+Top10_money = yuan.nlargest(10, 'nominal')[['year', 'nominal']]
+print(f"Top 10 YEARS with highest nominal money issues are: {Top10_money}")
+```
+
+#### Overlap years - War & Money
+```{python}
+overlap_war_money = pd.merge(Top10_wars, Top10_money, on='year')
+print(f"overlapping years of highest total war numbers and nominal money issues are: {overlap_war_money}")
+```
+
+#### **Comment-Part 1-2a**: In this section, I identify the top 10 years with the highest number of wars and the top 10 years with the highest nominal money issues. 
+#### There are **3** years: **1352, 1355, 1353** appear in both lists. In other words, they are the **"overlap years"**
+
+<br>
+
+### Part 1-2b: 
+
+#### Top 10 highest number of disasters
+```{python}
+Top10_disaster = yuan.nlargest(10, 'disaster')[['year', 'disaster']]
+print(f"Top 10 YEARS with highest number of disasters are: {Top10_disaster}")
+```
+
+#### Overlap years - Disaster & Money
+
+```{python}
+overlap_disaster_money = pd.merge(Top10_disaster, Top10_money, on='year')
+print(f"overlapping years of highest disasters and nominal money issues are: {overlap_disaster_money}")
+```
+
+#### **Comment-Part 1-2b**: In this section, I identify the top 10 years with the highest number of disasters.
+#### There are **no overlap years** between the top 10 years of highest number of disasters & the top 10 years with the highest nominal money issues.
+
+<br>
+
+### Part 1-2c:
+
+#### Code Section 1 - Explain
+##### In this section, I converts my **yuan** data into a **long format**. This is because I am plotting 4 variables in 1 diagram, and changing format enables me using 4 **colours** to distinguish 4 columns.  
+
+#### Code Section 2 - Explain
+##### In this section, I use ggplot to plot the change of 4 variables across time. I did not change the default theme and colour for lines, as I am satisfied with them.  
+
+##### However, I noticed that these four variables have significantly different scales. For instance, **nominal** generally has values in the millions (7 digits), while **totalwar** generally are in 2-digit values. If I plot them directly on the same graph, the trend of wars will be barely visible due to the large differences in scale.  
+
+##### Thus, I apply a **log10 transformation** to the y-axis. This transformation compresses large values, but leave trend visible.  
+
+```{python}
+# Code Section 1
+yuan_long = yuan.melt(
+    id_vars=['year'], 
+    value_vars=['cpi', 'totalwar', 'disaster', 'nominal'],
+    var_name='variable', 
+    value_name='value'
+)
+
+# Code Section 2
+(   
+    plt.ggplot(yuan_long, plt.aes(x='year', y='value', color='variable'))
+     + plt.geom_line()
+     + plt.labs(
+         title='Evolution of CPI, Total War Numbers, Disasters, and Nominal Money Issues',
+         x='Year', 
+         y='Value'
+       )
+     + plt.scale_y_continuous(trans='log10')
+)
+```
+
+#### **Comment-Part 1-2c**: Based on the plot, we can see the **increase of nominal money issue is extremely significant**, which increases from roughly 1e5 (100,000) in 1260s to almost 1e8 (100,000,000) in 1340s. In other words, the nominal money issues increased about 1000 times from the beginning of the Yuan Dynasty to the end.
+#### Another index that witnessed **a relatively significant increase is the CPI**, which has a smooth upward-sloping line throughout 100 years. CPI is an index representing the **inflation situation**. Combining the fact of the both increase in CPI and nominal money issues, one hypothesis is that the rapid expansion of money issuance may have contributed to inflationary pressures in the Yuan Dynasty.
+#### In contrast, statistics for **disaster** and **total war** did not change dramatically, but were rather volatile during the 100 years. This data practically makes sense because it is unusual for wars and natural disasters to increase a lot.
+
+<br>
+
+### Part 2
+### Part 2-1:
+
+#### Create training and test sets:
+##### As there is no statement which variables I should use for variables, and considering this is just the first Model, I will include all variables apart from "cpi" (my target), "emperorname" (varchar), and "year"(We already know the correlation between cpi and year is extremely significant from the diagram Part 1-2c. In this section, we are more interested in finding hidden correlations between "cpi" and other variables.)
+```{python}
+yuan_train = yuan[yuan['year'] < 1327]
+yuan_test = yuan[yuan['year'] >= 1327]
+
+features = [_ for _ in yuan.columns if _ not in ['cpi', 'emperorname', 'year']]
+target = 'cpi'                                  # we predict cpi
+
+X_train = yuan_train[features]                  # Capitalized X to represent it's an input
+y_train = yuan_train[target]                    # Lowercase y to represent it's an outcome
+X_test = yuan_test[features]
+y_test = yuan_test[target]
+```
+
+#### Generate Baseline Model & Metric
+```{python}
+baseline_model = LinearRegression()
+baseline_model.fit(X_train, y_train)            # ONLY use train data
+
+y_train_pred = baseline_model.predict(X_train)
+y_test_pred  = baseline_model.predict(X_test)
+
+rmse_train = np.sqrt(mean_squared_error(y_train, y_train_pred))
+rmse_test  = np.sqrt(mean_squared_error(y_test, y_test_pred))
+r2_train   = r2_score(y_train, y_train_pred)
+r2_test    = r2_score(y_test, y_test_pred)
+
+print("Baseline Model Performance on training and test:")
+print("Training RMSE: {:.3f}".format(rmse_train))
+print("Training R²: {:.3f}".format(r2_train))
+print("Test RMSE: {:.3f}".format(rmse_test))
+print("Test R²: {:.3f}".format(r2_test))
+```
+
+#### **Comment-Part 2-1-Baseline Model**: The baseline model's performance on traning has a 1.355 RMSE(root mean squared error), and a 0.987 R-squared value. This combo of value is quite satisfactory, given the fact that I have included all variables. 
+
+#### However, this value only means the model performs well on the training data, but if we look at its performance in the test data, the RMSE is 28.078, with a -0.090 R-squared value. This combo of value suggest this model **performs EXTREMELY badly** on the **test data**. For the R-sqaured value, we have formula 1-SSres/SStot, and a negative value means my model performs so bad that **even just using the mean of the dependent variable (the "cpi") can get a better prediction** than my model.
+
+#### I have some initial guesses for this huge gap in performance between train and test though. I think the major issue is I include **too many variables** in the model, where many of them are just **noises** instead of meaningful data. For instance, the column emperor shows this year is ruled by the x-th number of emperor, but my baseline model would treat it as numerical features (1,2,3...), which misleads my model, introducing meaningless patterns. So the next step is either doing modifications to, or getting rid of these noises.  
+
+<br>
+
+#### Residual Plot
+##### Explain - section 1: In the section 1, I am calculating the residuals for train data and test data, by using the formula: acutual statsitic - predict statistic, then assign a group to each one, to distinguish whether it is train or test. After that, I pd.concat two dfs into a single one to facilitate my plotting. 
+##### P.S. I have considered whether using abs() to modify values to positive, or use residual square instead of raw residual, but I then realized that a raw residual tells me if data is more **underpredicted or overpredicted**, so I keep raw residual.
+
+<br>
+
+##### Explain - section 2: In the section 2, I simply create a scatter plot to demonstrate their respective performance. For visual friendly, I set alpha as 1 and use minimal theme.
+```{python}
+# section 1
+df_train = pd.DataFrame({
+    'predicted': y_train_pred,
+    'residual': y_train - y_train_pred,
+    'group': 'Train'})
+
+df_test = pd.DataFrame({
+    'predicted': y_test_pred,
+    'residual': y_test - y_test_pred,
+    'group': 'Test'})
+
+df_residuals = pd.concat([df_train, df_test], ignore_index=True)
+
+# section 2
+(
+    plt.ggplot(df_residuals, plt.aes(x='predicted', y='residual', color='group')) +
+    plt.geom_point(alpha=1) +
+    plt.labs(title="Residual Plot for Baseline Model",
+             x="Predicted CPI",
+             y="Residuals") +
+    plt.theme_minimal()
+)
+
+```
+
+#### **Comment-Part 2-1-Plot**: This plot is a visual demonstration of my **Comment-Part 2-1-Baseline Model**. Residual value for most blue dots (Train) are close to 0, while red dots (Test) have much higher residual values, which some almost reach 80. This suggests my baseline model performs good on train data, but very bad on test data. There are many improvements I still need to make on this model to make it has a more decent performance, which is what I will do next. 
+
+<br>
+
+### Part 2-2 
+#### Improved model
+
+##### Explain - section 1: I have done 2 **feature engineering** work in this part. 1, I have created a new feature called **time_trend** to calculate how many years have passed since the start of Yuan Dynasty. This helps my model capture long-term trend; 2, I have also created a new column **cpi_last_year**, which contains the last year's cpi information. For instance, the row with year 1270 contains year 1269's cpi 2.815 as cpi_last_year. I expect this would improve model's ability to forecast future CPI changes (our target). 
+
+<br>
+
+##### However, because there is no cpi_last_year for the first year 1260, so I need to drop the first raw. This is done by using the dropna() function. And I rest the index after the drop.
+
+<br>
+
+##### Explain - section 2: This part of code is the same as Part 2-1, but unlike Part 2-1, I **remove the column "emperor"**, with the reason stated in the **Comment-Part 2-1-Baseline Model** section. I have tested the final RMSE and R-squared for both cases (remove or not remove), and the results are: **RMSE decreases from 7.555 to 6.445**, **R-squared increases from 0.921 to 0.943**. This combination of results suggest the removel improves the performance of my improved model, and justifies my decision in removing "emperor".
+
+<br>
+
+##### Explain - section 3: This part is about tuning the model. I begin by creating a GridSearchCV object from the scikit-learn library. I use the singular value decomposition(svd) solver for estimating the model parameters (reasons for using svd is explained in comment section), and choose the common 5-fold cross-validation. The porformance of model is evaluated by the mean squared error (MSE), and through comparing the final alpha value, I can get the improved model.
+
+<br>
+
+##### Explain - section 4: This part assesses the performance of my improved model with RMSE and R-squared value. Code is similar to Part 2-1.
+
+```{python}
+
+# Section 1
+yuan['time_trend'] = yuan['year'] - yuan['year'].min()
+
+yuan['cpi_last_year'] = yuan['cpi'].shift(1)
+yuan = yuan.dropna(subset=['cpi_last_year']).reset_index(drop=True)
+
+
+# Section 2
+yuan_train = yuan[yuan['year'] < 1327]
+yuan_test  = yuan[yuan['year'] >= 1327]
+
+target = 'cpi'
+features = [col for col in yuan.columns if col not in ['cpi', 'emperor', 'emperorname', 'year']]
+
+X_train = yuan_train[features]
+y_train = yuan_train[target]
+X_test  = yuan_test[features]
+y_test  = yuan_test[target]
+
+
+# Section 3
+param_grid = {'alpha': [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]}
+ridge = Ridge(solver='svd')
+
+cv = KFold(n_splits=5, shuffle=True, random_state=12345)
+grid_search = GridSearchCV(ridge, param_grid, cv=cv, scoring='neg_mean_squared_error')
+grid_search.fit(X_train, y_train)
+
+
+print("best alpha value is:", grid_search.best_params_['alpha'])
+improved_model = grid_search.best_estimator_
+
+
+# Section 4
+y_train_pred_improved = improved_model.predict(X_train)
+y_test_pred_improved  = improved_model.predict(X_test)
+
+rmse_train_improved = np.sqrt(mean_squared_error(y_train, y_train_pred_improved))
+rmse_test_improved  = np.sqrt(mean_squared_error(y_test, y_test_pred_improved))
+r2_train_improved   = r2_score(y_train, y_train_pred_improved)
+r2_test_improved    = r2_score(y_test, y_test_pred_improved)
+
+print("\nImproved Model Performance:")
+print("Training RMSE: {:.3f}".format(rmse_train_improved))
+print("Training R²: {:.3f}".format(r2_train_improved))
+print("Test RMSE: {:.3f}".format(rmse_test_improved))
+print("Test R²: {:.3f}".format(r2_test_improved))
+```
+
+#### **Comment-Part 2-2-Improved Model**: Compared to the baseline model, I have made 3 modifications to the baseline model: feature engineering, deleting columns, and tuning model. And the result is the **improved model performs much better in both training data and test data**, which is supported by better statistics in RMSE and R-squared. The improvement in test data is more significant, in which the RMSE decreases from 28.078 to 6.445, and the R-squared increases from -0.090 to 0.943. 
+
+#### **Comment-Part 2-2-Improved Model**: I want to talk a bit more about my choice of **svd**. At first, I noticed 2 characteristics of my yuan dataframe: 1, it is a small one, in which there are roughly only 100 rows. 2, During the time when I was still halfway in model modifications, I received many warnings about ill-conditioned matrix in my test outputs, which suggests there is a high multicollinearity present, which generally there are means many highly-correlated variables present. Thus, I choose **svd** because it is robust in treating ill-conditioned matrix, and in small dataframe.
+
+<br>
+
+#### Plot for Improved model
+##### The code structure is similar to baseline model, so I will not duplicate explanation. The only modification is I set the scale of y-axis from -10 to 80. I did this to ensure 2 scatter plots share the same axis for both baseline model and improved model, so viewers can clearly observe the distribution of red dots (residuals for test data).
+```{python}
+df_train_improved = pd.DataFrame({
+    'predicted': y_train_pred_improved,
+    'residual': y_train - y_train_pred_improved,
+    'group': 'Train'})
+
+df_test_improved = pd.DataFrame({
+    'predicted': y_test_pred_improved,
+    'residual': y_test - y_test_pred_improved,
+    'group': 'Test'})
+
+
+df_residuals_improved = pd.concat([df_train_improved, df_test_improved], ignore_index=True)
+
+(
+    plt.ggplot(df_residuals_improved, plt.aes(x='predicted', y='residual', color='group')) +
+    plt.geom_point(alpha=1) +
+    plt.labs(title="Residual Plot for Improved Model",
+             x="Predicted CPI",
+             y="Residuals") +
+    plt.scale_y_continuous(limits=(-10, 80)) +
+    plt.theme_minimal()
+)
+```
+
+#### **Comment-Part 2-2-Improved plot**: Compared to the plot for the baseline model, aggregately speaking, the residuals for the prediction of test data cpi value decrease significantly. In the diagram, red dots are distributed closer to the baseline of X-axis (the straight line where y=0). This proves my improved model performs better than baseline model in test data. For train data, the metric suggests there is also an improvement in prediction accuracy, but it is less obvious on the scatter plot.
+
+
+<br>
+
+
+### Part 3-1: Data Processing
+
+<br>
+
+##### Explain - Section 1: In this part, I am doing some basic processing to the data from BoE_interest_rates.csv and economic_indicators_interest_rate_setting.csv; In the section 1, I read 2 csv files with pandas. I am required strictly to call the dataframe of interest rates as **df**, though I really think a name like df_interest is much better. There is no naming requirement for indicators, so I call it **df_indi**.
+
+##### Explain - Still Section 1: Next, I rename some variables. I notice there are both "**Date**" in 2 dataframes. To distinguish them, I rename the Date in df as **event_date** because these are dates when rate setting happens. For df_indi, I change many of its variables into a simplified version. I understand that creators of this csv file want to explain every variable in detail, but the too cumbersome naming method causes confusion. 
+
+<br>
+
+##### Explain - Section 2: As required, I have assigned the indicator values to each row, which indicator values are the average of the last 3 months. This part of code is quite common, so no specific explanations are needed. However, it is worth noting that the **event_date 2025-02-06 does not have indicator values, because last month in df_indi is 2024-11**, so there is no "last 3 months" data for 2025-02-06. In this situation, I have no choice but to **remove this row**.
+
+```{python}
+# Section 1
+
+df = pd.read_csv("./BoE_interest_rates.csv")
+df.rename(columns={"Date": "event_date"}, inplace=True)
+
+df_indi = pd.read_csv("./economic_indicators_interest_rate_setting.csv")
+rename_mapping = {
+    "Date": "date",
+    "Unemployment rate (aged 16 and over, seasonally adjusted): %": "unemployment rate",
+    "CPIH MONTHLY RATE 00: ALL ITEMS 2015=100": "CPIH RATE",
+    "Gross Value Added - Monthly (Index 1dp) :CVM SA": "Gross Value Added",
+    "Monthly average Spot exchange rate, Sterling into US$              [a]             XUMAGBD": "GBP_USD",
+    "Monthly average Spot exchange rates, Sterling into Euro              [a]             XUMASER": "GBP_EUR"
+}
+df_indi.rename(columns=rename_mapping, inplace=True)
+
+
+# Use to_datetime function to process raw string values to datetime objects is crucial for my futher processing.
+df_indi['date'] = pd.to_datetime(df_indi['date'])
+df['event_date'] = pd.to_datetime(df['event_date'])
+
+# check rate setting events occur every year.
+print("Number of rate settings every year is:")
+print(df['event_date'].dt.year.value_counts().sort_index())
+
+
+
+
+# Section 2
+econ_columns = ['CCI', 'CPIH RATE', 'Gross Value Added', 'GBP_EUR', 'GBP_USD', '10-year-gilt-yield', 'unemployment rate']
+
+for col in econ_columns:
+    df[col + "_avg"] = np.nan
+
+for idx, row in df.iterrows():
+    event_date = row['event_date']
+    start_date = event_date - relativedelta(months=3)
+
+    mask = (df_indi['date'] >= start_date) & (df_indi['date'] < event_date)
+    df_slice = df_indi.loc[mask]
+    
+    for col in econ_columns:
+        df.loc[idx, col + "_avg"] = df_slice[col].mean()
+
+
+# remove last row: event_date = 2025-02-06
+df.drop(df.index[-1], inplace=True)
+# Observe the final structure of df after all these operations.
+df.head()
+```
+
+
+
+### Part 3-2: Baseline Logistic Regression Model
+##### According to the requirement, 70% rows of df used for training, and 30% are used for testing. 
+```{python}
+
+feature_cols = [col + "_avg" for col in econ_columns]
+X = df[feature_cols]
+y = df['rate_change']
+
+# maintain the time order
+df.sort_values('event_date', inplace=True)
+X = df[feature_cols]
+y = df['rate_change']
+
+
+n = len(df)
+split_index = int(round(n * 0.7))
+
+# 70% for training
+X_train = X.iloc[:split_index]
+y_train = y.iloc[:split_index]
+
+# 30% for testing
+X_test = X.iloc[split_index:]
+y_test = y.iloc[split_index:]
+
+# Verify
+print("training set size is (70%):", X_train.shape[0])
+print("test set size is (30%):", X_test.shape[0])
+```
+
+<br>
+
+##### When train and test data are ready, we work on designing a logistic regression model. There are multiple variables in df, so it will be a multinomial model. I also increases iteration numbers from default(100) to 200, as I receive warnings about not enough iterations.
+```{python}
+
+clf = LogisticRegression(multi_class='multinomial', solver='lbfgs', max_iter=200)
+clf.fit(X_train, y_train)
+
+# Predict on the test set
+y_pred = clf.predict(X_test)
+
+# Evaluate the model using accuracy and a classification report
+f1 = f1_score(y_test, y_pred)
+accuracy = accuracy_score(y_test, y_pred)
+
+print("Test F1 Score:", f1)
+print("Test Accuracy:", accuracy)
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
+
+# confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+cm_df = pd.DataFrame(cm, index=clf.classes_, columns=clf.classes_)
+print("Confusion Matrix:")
+print(cm_df)
+
+```
+
+##### Plotting: To better visually demonstrate the output, I have used a matrix heatmap (geom_tile) to demonstrate the differences between the model's prediction of rate change, and the actual rate change. 
+##### P.S. Before the actual plotting, I need to modify my cm_df with .melt (function from pandas) to a long format. But I do not need to use it again anywhere, so I make the long format cm_df a throw away variable "_".
+```{python}
+
+_ = (
+    cm_df.reset_index()
+    .melt(id_vars='index', var_name='Predicted', value_name='Count')
+    .rename(columns={'index': 'True'})
+)
+
+(
+    plt.ggplot(_, plt.aes(x='True', y='Predicted', fill='Count')) +
+    plt.geom_tile() +
+    plt.geom_text(plt.aes(label='Count'), color='black') +
+    plt.scale_fill_gradient(low="lightgrey", high="lightblue") +
+    plt.labs(title='Confusion Matrix: Baseline Logistic Model', x='True Rate Change', y='Predicted Rate Change') +
+    plt.theme_minimal()
+)
+
+```
+
+#### **Comment-Part 3-2 Baseline Logistic Regression Model**: In this part, we are trying to create a model with logistic regression to predict the target variable **"rate_change". This variable means whether the change of Interest Rate from last year to the present year is Positive (1) or Negative(-1)**. We have split 30% of the data into the test subset, which there are 20 pieces (the closest integer).
+
+#### **Comment-Part 3-2 Baseline Logistic Regression Model**: And among these 20 pieces, my baseline logistic model has falsely predicted 17 out of 20 changes. This could be clearly seen from either the heatmap plot or the Confusion Matrix. The baseline logistic model has predicted 15 changes are -1 (interest rate decrease), while true change is 1 (interest rate increase) --- **False Negative**. predicted 2 changes are 1, while true change is -1 --- **False Positive**. 
+
+#### **Comment-Part 3-2 Baseline Logistic Regression Model**: The accuracy of my baseline logistic model on test data is 0.15 (3 out of 20 successful), which is far away from being satisfactory. Looking at other statistics, the recall are respectively 0.50 and 0.06 for -1 and 1. This means my model performs moderately in capturing -1 (interest rate decrease), but performs extremely bad at capturing 1 (interest rate increase). With these combinations of recall and precision, the f1-score also looks terrible, where the statistics are very low. These statistics tell me that the baseline logistic model performs bad, and adjustments are required.
+
+<br>
+
+### Part3-3: Improved Logistic Regression Model
+
+<br>
+
+##### To start the feature engineering work, I want to observe the regression coefficients first. I set the -1 as baseline and observe the coefficient of predictors when rate_change = 1.
+```{python}
+if clf.coef_.shape[0] == 1 and len(clf.classes_) == 2:
+    coef_array = np.vstack([np.zeros(clf.coef_.shape[1]), clf.coef_])
+    coef_df = pd.DataFrame(coef_array, columns=feature_cols, index=clf.classes_)
+else:
+    coef_df = pd.DataFrame(clf.coef_, columns=feature_cols, index=clf.classes_)
+
+print("Logistic Regression Coefficients:")
+print(coef_df)
+```
+
+#### **Comment-Part 3-3 Logistic Regression Coefficients**: The 2 predictors catch my attention are the "GBP_EUR_avg" and the "10-year-gilt-yield_avg", which are respectively -0.022662 and 1.46202. This large disparity indicates that the **predictors contribute very unequally** to the model. This disparity suggests that the model relies heavily on a few key variables (e.g. 10-year-gilt-yield_avg) while others may be **adding noises**.
+
+<br>
+
+#### **Comment-Part 3-3 Logistic Regression Coefficients**: Thus, I will apply **L1 regularization (lasso)** in my improved model because it can drive coefficients of less informative predictors (e.g. GBP_EUR_avg) to **exact zero**. This feature selection property helps to simplify the model to focus only on the most impactful predictors, which can improve predictive accuracy.
+
+<br>
+
+#### Explain - Improved Logistic Regression Model
+
+<br>
+
+##### As I have justified in the last section, I will use **L1 regularization (Lasso)** to tune my model. However, I **can not use lbfgs** as solver anymore because it does not comply with L1. The options I have are saga and liblinear. I could use liblinear because my target is binary (1 or -1), but because I use **PolynomialFeatures (degress=2)** to capture "paired" interactions between predictors. This introduces many new features, which increasees my feature numbers, and **saga works better with large feature numbers** compared to liblinear, so I use saga as my solver.
+
+<br>
+
+##### There are some other points I want to discuss. 1, I have used the pipeline framework this time, because procedures for modeling process are very complicated here. Chaining procedures into a workflow can standardize operation, maintain reproducibility and avoid mistakes. 2, my C values for cross-validation are 5 distinct values from 0.001 to 10, instead of one specific number. By doing so, my model has **more freedom to choose either strong or weak regularization**, which automatically optimizes its performance. 3, I have increased the number of maximum iterations until there is no warning in the terminal. 4, divide dataset into 5 folds (n_splits=5) is a common choice that **balance between bias and variance**.
+
+```{python}
+
+pipeline_l1 = Pipeline([
+    ('poly', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
+    ('scaler', StandardScaler()),
+    ('logreg_cv', LogisticRegressionCV(
+        cv=TimeSeriesSplit(n_splits=5),
+        penalty='l1',
+        solver='saga',
+        max_iter=10000,
+        random_state=12345,
+        Cs=[0.001,0.01,0.1,1,10]
+    ))
+])
+
+
+pipeline_l1.fit(X_train[feature_cols], y_train)
+y_pred = pipeline_l1.predict(X_test[feature_cols])
+
+
+f1 = f1_score(y_test, y_pred)
+acc = accuracy_score(y_test, y_pred)
+
+print("Test F1 Score:", f1)
+print("Test Accuracy:", acc)
+print("Test Classification Report:")
+print(classification_report(y_test, y_pred, zero_division=0))
+
+
+cm = confusion_matrix(y_test, y_pred)
+cm_df_improved = pd.DataFrame(cm, index=pipeline_l1.named_steps['logreg_cv'].classes_, \
+columns=pipeline_l1.named_steps['logreg_cv'].classes_)
+print("Improved Confusion Matrix:")
+print(cm_df_improved)
+```
+
+#### Plot for Improved Logistic Regression Model
+```{python}
+_ = (
+    cm_df_improved.reset_index()
+    .melt(id_vars='index', var_name='Predicted', value_name='Count')
+    .rename(columns={'index': 'True'})
+)
+
+(
+    plt.ggplot(_, plt.aes(x='True', y='Predicted', fill='Count')) +
+    plt.geom_tile() +
+    plt.geom_text(plt.aes(label='Count'), color='black') +
+    plt.scale_fill_gradient(low="lightgrey", high="lightblue") +
+    plt.labs(title='Confusion Matrix: Improved Logistic Model', x='True Rate Change', y='Predicted Rate Change') +
+    plt.theme_minimal()
+)
+```
+
+#### **Comment-Part 3-3 Improved Logistic Regression Model**: I would evaluate the improved model from some statistics. My improved model has correctly predicted 16/20 rate_change. Compared to the baseline model, the Test Accuracy has increased from 0.15 to 0.8, and the f1 score has increased from 0.105 to 0.889.
+
+#### **Comment-Part 3-3 Improved Logistic Regression Model**: I have also generated the Confusion Matrix and the plot with the same format as the baseline model for better visual demonstration. In general, all these facts have suggested that the L1 regularization (lasso approach) tunes my baseline model well, which largely improves its performance in prediction.
+
+#### **Comment-Part 3-3 Improved Logistic Regression Model**: However, the improved model is still not perfect. One worrying problem is that it predicts every instance as 1, so none of the -1 cases are correctly identified. There are many explanations for this phenomenon. It could be overfitting or underfitting. It could be caused by multicollinearity, or by inappropriate feature engineering (in my case, L1). But at the same time, the size of the data is too small. If we divide it by 70/30, then only 20 rows are available to evaluate the performance of the model. And among these 20 rows, I only have 4 "-1" true rate changes in the test data. I cannot tell whether the fact that my improved model is predicting all -1s incorrectly is because it is a bad model, or whether it is just random error. If I had more samples of "-1", I might be able to draw that conclusion. To do this, I may need to consider **resampling** my improved model.
+
+<br>
+
+#### End of this .qmd file
+#### Candidate Number: 48372

@@ -1,0 +1,2 @@
+#### Data for solar irradiance is collected through Solcast bulk download function (website: https://solcast.com/).  
+#### We provide the geographic coordinations (e.g. for London, enter (51.5074, -0.1278)), and then specify the time range. The Solcast automatically collects all solar irradiance data about that place, and provides bulk download CSV files, in which you can see them in the raw_data/solcast directory.  

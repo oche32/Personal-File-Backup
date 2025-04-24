@@ -1,0 +1,396 @@
+---
+title: "ST211 Reading Week Project"
+output:
+  html_notebook:
+    self-contained: true
+jupyter: r
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+## Group 17
+## Candidate Numbers: 48569, 38119, 48372, 47390.
+#### This report is written as .Rmd format, please make sure you open this file in correct format.
+
+##### PART 0: Load packages and Preparation Works.
+```{r}
+# change wd to your local computer's path
+setwd("C:/Users/Absinthium/Desktop/ST211/ReadingWeekProject")
+
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(GGally)
+library(car)
+library(arm)
+library(gridExtra)
+
+rawdata <- read.csv("RWNS_final.csv", header=TRUE, stringsAsFactors=TRUE)
+
+# And we first observe the data that is provided:
+summary(rawdata)
+```
+
+
+#### PART 1: Baselines and Assumptions
+##### This project is working on finding which factors would influence the KS4score of students. After clarify our data, we dicide our baselines in Part 5.
+
+#### And our initial assumptions are:
+
+#### H1:KS4score has no correlation to gender
+#### H2:KS4score has positive correlation to academic performance
+#### H3:KS4score has no correlation to background
+#### H4:KS4score has negative correlation study habits
+
+#### PART 2.1: Continous variables: k3en, k3sc, k3ma
+
+##### First, we check if there are missing data in these columns
+```{r}
+sum(is.na(rawdata$k3sc))
+sum(is.na(rawdata$k3en))
+sum(is.na(rawdata$k3ma))
+```
+##### Since there is no missing data, we first investigate the external correlations between these 3 factors to ks4score.
+##### To investigate that, we conduct a linear regression model between ks4score and k3en/k3ma/k3sc.
+```{r}
+model_k4_to_k3en <- lm(ks4score ~ k3en, rawdata)
+model_k4_to_k3ma <- lm(ks4score ~ k3ma, rawdata)
+model_k4_to_k3sc <- lm(ks4score ~ k3sc, rawdata)
+
+summary(model_k4_to_k3en)
+summary(model_k4_to_k3ma)
+summary(model_k4_to_k3sc)
+```
+
+##### To better visually understand the trend, I will plot 3 **scatter plots** for relationships between k4score and 3 k3 statistics.
+```{r}
+ggplot(rawdata, aes(x=k3en, y=ks4score)) + geom_point() + geom_smooth(method = "lm", se = TRUE, color = "red") 
+ggplot(rawdata, aes(x=k3ma, y=ks4score)) + geom_point() + geom_smooth(method = "lm", se = TRUE, color = "red") 
+ggplot(rawdata, aes(x=k3sc, y=ks4score)) + geom_point() + geom_smooth(method = "lm", se = TRUE, color = "red") 
+
+```
+
+
+##### Next, we investigate the internal correlations between these 3 factors, and their external correlations to ks4score.
+```{r}
+ggpairs(rawdata[, c("k3en", "k3ma", "k3sc")],
+       title = "Correlation Matrix for K3 Scores")
+```
+##### For internal correlation, we observe a positive trend both in scatter plots and in density plots. 3 correlation values are extremely high, and p-value is smaller than 0.001 (***).
+
+##### And for their external correlation to ks4score, their respective p-values are also very small.
+
+##### Thus, our conclusion is: we would merge these 3 columns into 1 column.
+```{r}
+# merge 3 columns into 1.
+# IMPORTANT: we need to specifically use function "dplyr::select" to avoid conflicts with other packages
+rawdata <- rawdata %>% mutate(k3_total = rowSums(dplyr::select(., k3en, k3ma, k3sc), na.rm = TRUE))
+
+# conduct a simple linear regression between k3_total and k4score this time.
+model_k3_total <- lm(ks4score ~ k3_total, rawdata)
+summary(model_k3_total)
+
+```
+
+##### Finally, we make a **scatter plots** for the final continous variable: **k3_total**
+```{r fig.width=10, fig.height=5}
+
+ggplot(rawdata, aes(x = k3_total, y = ks4score)) +
+  geom_point(alpha = 0.6, color = "black") + 
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(title = "KS4 Score vs K3 Total",
+       x = "K3 Total Score",
+       y = "KS4 Score") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold", size = 14, hjust = 0.5))
+
+```
+#### PART 2.2: Continous variables: IDACI_n
+##### check if there is missing data in column IDACI_n
+```{r}
+sum(is.na(rawdata$IDACI_n))
+```
+##### There are 11 missing data, we filter them. IDACI_n is a continuous data, so NA is directly represented as NA.
+```{r}
+# since we are now just processing on one single column, so we use a relatively easy approach: subset approach.
+rawdata <- subset(rawdata, !is.na(IDACI_n))
+
+# check again
+sum(is.na(rawdata$IDACI_n))
+```
+
+##### Then likewise PART 2.1, we proceed to simple linear regression and plotting, but this time is to IDACI_n.
+##### And for the conclusion, we have observed a **negative correlation** at **99.9% confidence level** between IDACI_n and ks4score.
+```{r}
+model_IDACI_n <- lm(ks4score ~ IDACI_n, rawdata)
+summary(model_IDACI_n)
+
+ggplot(rawdata, aes(x=IDACI_n, y=ks4score)) + geom_point() + geom_smooth(method = "lm", se = TRUE, color = "blue") 
+```
+
+
+
+
+#### PART 3: Categorical variables that has missing values **under 5%**.
+##### First, we realized some columns contains missing data. For categorical variables whose proportion of missing data is **under 5%** of total data, we directly remove them.  
+##### Trough looking up the file **RW_data_dictionary.rtf**, we can find the representation of missing values for each column, thus, the code will be:
+```{r}
+
+# unlike handling missing values for IDACI_n, we have a lot of columns to handle, so I would prefer an easier approach: specifying the representation of missing values (according to RW_data_dictionary.rtf) to NA first, then get rid of all NAs.
+
+# In other words, missings are represented by a specific VarChar, and we need to code them as NA for R to filter out.
+
+rawdata$singlepar[rawdata$singlepar == "missing"] <- NA
+rawdata$house[rawdata$house == "other/DK/Ref"] <- NA
+rawdata$fsm[rawdata$fsm == "missing"] <- NA
+rawdata$parasp[rawdata$parasp == "missing"] <- NA
+rawdata$computer[rawdata$computer == "missing"] <- NA
+rawdata$tuition[rawdata$tuition == "missing"] <- NA
+rawdata$pupasp[rawdata$pupasp == "missing"] <- NA
+rawdata$sen[rawdata$sen == "missing"] <- NA
+rawdata$FSMband[rawdata$FSMband == "NA"] <- NA
+
+
+# For columns gender, fiveac, and fiveem, there are no missing variable representation.
+
+
+# Now we have coded NA values, next we will remove rows that have NA values.
+# But to avoid influencing other columns (columns where missing data proportion > 5%), we need to first specify columns we want to work on.
+
+cols_to_clean_in_part3 <- c("singlepar", "house", "fsm", "parasp", "computer", "tuition", "pupasp", "sen", "FSMband")
+clean_data_part3 <- rawdata[complete.cases(rawdata[, cols_to_clean_in_part3]), ]
+```
+
+
+##### Finally, we make **box plots** for each discrete variable (whose missing value proportion < 5%).
+```{r fig.width=10, fig.height=15}
+
+categorical_vars <- c("singlepar", "house", "fsm", "parasp", 
+                      "computer", "tuition", "pupasp", "sen", "FSMband","gender","fiveac","fiveem")
+
+long_data <- clean_data_part3 %>%
+  pivot_longer(cols = all_of(categorical_vars),
+               names_to = "variable",
+               values_to = "group")
+
+ggplot(long_data, aes(x = factor(group), y = ks4score)) +
+  geom_boxplot(fill = "lightblue") +
+  facet_wrap(~ variable, scales = "free_x",ncol=3) +
+  labs(title = "KS4Score by 12 categorical variables (categorical variables contains less than 5% of missing data)", x = "categorical variables", y = "KS4Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(face = "bold", size = 14, hjust = 0.5))
+
+```
+
+#### PART 4: Categorical variables that has missing values **above 5%**: 
+
+##### We find some missing value and NA occupied more than 5% of the total volumn，and we decided to make them as a group to analyze the category data.
+
+##### First, we plot using the **ORIGINAL** categories
+```{r}
+# Attitude:orignal ggplots
+ggplot(rawdata, aes(x=attitude, y=ks4score)) + geom_boxplot()
+
+# SECshort
+ggplot(rawdata, aes(x=SECshort, y=ks4score)) + geom_boxplot()
+
+# hiquamum
+ggplot(rawdata, aes(x=hiquamum, y=ks4score)) + geom_boxplot()
+
+# homework:it shows a significant positive relationship between ks4score and spent time on homework;missing shows the lowest score
+ggplot(rawdata, aes(x=homework, y=ks4score)) + geom_boxplot()
+
+# truancy
+ggplot(rawdata, aes(x=truancy, y=ks4score)) + geom_boxplot()
+
+# absent
+ggplot(rawdata, aes(x=absent, y=ks4score)) + geom_boxplot()
+
+# exclude
+ggplot(rawdata, aes(x=exclude, y=ks4score)) + geom_boxplot()
+```
+
+
+##### Next, we merge some categories of these 3 columns: **attitude, hiquamun, FSMband**, and plot their **box plots** after merge.
+```{r}
+# Attitude: combine low and very low, high and very high
+rawdata$attitude <- relevel(rawdata$attitude,ref="low")
+rawdata$new_attitude <- rawdata$attitude
+levels(rawdata$new_attitude)[levels(rawdata$new_attitude)%in% c("low","very_low")] <- "low"
+levels(rawdata$new_attitude)[levels(rawdata$new_attitude)%in%
+c("high","very_high")] <- "high"
+summary(rawdata$new_attitude)
+ggplot(rawdata, aes(x=new_attitude, y=ks4score)) + geom_boxplot()
+
+
+# Hiquamun
+rawdata$hiquamum <- relevel(rawdata$hiquamum,ref="No_qualification")
+rawdata$new_hiquamum <- rawdata$hiquamum
+levels(rawdata$new_hiquamum)[levels(rawdata$new_hiquamum)%in% c("HE_below_degree_level","GCE_A_Level_or_equivalent","GCSE_grades_A-C_or_equiv")] <- "below_degree"
+levels(rawdata$new_hiquamum)[levels(rawdata$new_hiquamum)%in%
+c("missing","Other_qualifications")] <- "missing_and_other"
+summary(rawdata$new_hiquamum)
+ggplot(rawdata, aes(x=new_hiquamum, y=ks4score)) + geom_boxplot()
+
+
+# FSMband
+rawdata <- subset(rawdata, FSMband!="NA")
+rawdata$new_FSMband <- rawdata$FSMband
+levels(rawdata$new_FSMband)[levels(rawdata$new_FSMband)%in% c("5pr-9pr","9pr-13pr")] <- "5pr-13pr"
+levels(rawdata$new_FSMband)[levels(rawdata$new_FSMband)%in%
+c("13pr-21pr","21pr-35pr")] <- "13-35pr"
+summary(rawdata$new_FSMband)
+ggplot(rawdata, aes(x=new_FSMband, y=ks4score)) + geom_boxplot()
+```
+
+
+
+#### PART 5: Multi Linear Regression Analysis for categorical variables.
+
+##### First, we specify a reference group for each category. e.g. set Male as reference group for category gender.
+##### Then we design a multi linear model that includes all **categorical variables**
+##### Finally we summerize our results using display(),summary(), and Anova().
+```{r}
+
+# Decide the baseline
+rawdata$fiveac <- relevel(rawdata$fiveac,ref="yes")
+rawdata$fiveem <- relevel(rawdata$fiveem,ref="yes")
+rawdata$gender <- relevel(rawdata$gender,ref="Male")
+rawdata$SECshort <- relevel(rawdata$SECshort,ref="Managerial_and_professional")
+rawdata$new_hiquamum <- relevel(rawdata$new_hiquamum,ref="Degree_or_equivalent")
+rawdata$singlepar <- relevel(rawdata$singlepar,ref="yes")
+rawdata$house <- relevel(rawdata$house,ref="owned")
+rawdata$fsm <- relevel(rawdata$fsm,ref="yes")
+rawdata$parasp <- relevel(rawdata$parasp,ref="Yes")
+rawdata$computer <- relevel(rawdata$computer,ref="Yes")
+rawdata$tuition <- relevel(rawdata$tuition,ref="Yes")
+rawdata$homework <- relevel(rawdata$homework,ref="none")
+rawdata$sen <- relevel(rawdata$sen,ref="Yes")
+rawdata$truancy <- relevel(rawdata$truancy,ref="Yes")
+rawdata$absent <- relevel(rawdata$absent,ref="Yes")
+rawdata$exclude <- relevel(rawdata$exclude,ref="Yes")
+rawdata$new_attitude <- relevel(rawdata$new_attitude,ref="low")
+
+# multi linear regression
+ks4score.all.lm<-lm(ks4score~as.factor(fiveac)+as.factor(fiveem)+k3_total+as.factor(gender)+as.factor(SECshort)+as.factor(new_hiquamum)+as.factor(singlepar)+as.factor(house)+as.factor(fsm)+as.factor(parasp)+as.factor(pupasp)+as.factor(computer)+as.factor(tuition)+as.factor(homework)+as.factor(sen)+as.factor(truancy)+as.factor(absent)+as.factor(exclude)+IDACI_n+as.factor(new_FSMband)+as.factor(new_attitude), data=rawdata)
+
+# printouts
+display(ks4score.all.lm)
+summary(ks4score.all.lm)
+Anova(ks4score.all.lm)
+```
+
+##### Residual plots
+```{r}
+par(mfrow=c(1,3))
+plot(ks4score.all.lm,which=c(1,2))
+hist(ks4score.all.lm$residuals,main="Histogram of residuals",
+font.main=1,xlab="Residuals")
+```
+
+
+#### PART 6:Final Multi Linear Regression Model
+##### test for multicolinearity
+```{r}
+vif(ks4score.all.lm)
+```
+
+
+##### Result shows obvious multicollinearity between **absent** and **exclude**.
+##### we decided to exclude these 4 columns **"SECshort","fsm","tuition", "parasp"** (reasons: 1, their small t-value 2, their p values are larger than 5%) from our final model. Then remove "absent"to find important predictors.
+```{r}
+
+ks4score.lm2<-lm(ks4score~as.factor(fiveac)+as.factor(fiveem)+k3_total+as.factor(gender)+as.factor(new_hiquamum)+as.factor(singlepar)+as.factor(house)+as.factor(pupasp)+as.factor(computer)+as.factor(homework)+as.factor(sen)+as.factor(truancy)+as.factor(exclude)+IDACI_n+as.factor(new_FSMband)+as.factor(new_attitude), data=rawdata)
+
+summary(ks4score.all.lm)$adj.r.squared
+summary(ks4score.lm2)$adj.r.squared
+Anova(ks4score.lm2)
+display(ks4score.lm2)
+summary(ks4score.lm2)
+
+```
+
+##### Q-Q residual plot,  Residuals vs Fitted plot, and Histogram of residuals.
+```{r}
+par(mfrow=c(1,3))
+plot(ks4score.lm2,which=c(1,2))
+hist(ks4score.lm2$residuals,main="Histogram of residuals",
+font.main=1,xlab="Residuals")
+```
+
+
+##### based on lm2, try allow interaction with k3_total, fiveac and exclude because they are most significant from the t-value
+```{r}
+ks4score.lm3<-lm(ks4score ~ as.factor(fiveac)*k3_total*as.factor(exclude)+as.factor(fiveem)+as.factor(gender)+as.factor(new_hiquamum)+as.factor(singlepar)+as.factor(house)+as.factor(pupasp)+as.factor(computer)+as.factor(homework)+as.factor(sen)+as.factor(truancy)+as.factor(new_FSMband)+as.factor(new_attitude)+IDACI_n, data=rawdata)
+
+
+display(ks4score.lm3)
+summary(ks4score.lm3)
+Anova(ks4score.lm3)
+```
+
+##### lm3 further improves adjusted r squared. 
+```{r}
+par(mfrow=c(1,3))
+plot(ks4score.lm3,which=c(1,2))
+hist(ks4score.lm3$residuals,main="Histogram of residuals",
+font.main=1,xlab="Residuals")
+```
+
+#### Part 7: Show the importance of each subgroups by compare the adjusted R square: result:performance is the most important.
+##### Remove:**gender** to show the importance of gender with adjusted R^2
+```{r}
+
+ks4score.lm.gender<-lm(ks4score~as.factor(fiveac)+as.factor(fiveem)+k3_total+as.factor(new_hiquamum)+as.factor(singlepar)+as.factor(house)+as.factor(pupasp)+as.factor(computer)+as.factor(sen)+as.factor(truancy)+as.factor(exclude)+as.factor(new_FSMband)+as.factor(new_attitude), data=rawdata)
+
+
+summary(ks4score.lm.gender)$adj.r.squared
+summary(ks4score.lm2)$adj.r.squared
+change_gender <- summary(ks4score.lm2)$adj.r.squared-summary(ks4score.lm.gender)$adj.r.squared
+print(change_gender)
+```
+
+##### Remove:**performance** to show the importance of performance with adjusted R^2
+```{r}
+
+ks4score.lm.performance<-lm(ks4score~as.factor(gender)+as.factor(new_hiquamum)+as.factor(singlepar)+as.factor(house)+as.factor(pupasp)+as.factor(computer)+as.factor(sen)+as.factor(truancy)+as.factor(exclude)+as.factor(new_FSMband)+as.factor(new_attitude), data=rawdata)
+
+summary(ks4score.lm.performance)$adj.r.squared
+summary(ks4score.lm2)$adj.r.squared
+change_performance <- summary(ks4score.lm2)$adj.r.squared-summary(ks4score.lm.performance)$adj.r.squared
+print(change_performance)
+```
+
+##### Remove:**background** to show the importance of background with adjusted R^2
+```{r}
+
+ks4score.lm.background<-lm(ks4score~as.factor(fiveac)+as.factor(fiveem)+k3_total+as.factor(gender)+as.factor(parasp)+as.factor(truancy)+as.factor(exclude)+as.factor(new_attitude), data=rawdata)
+
+
+summary(ks4score.lm.background)$adj.r.squared
+summary(ks4score.lm2)$adj.r.squared
+change_background <- summary(ks4score.lm2)$adj.r.squared-summary(ks4score.lm.background)$adj.r.squared
+print(change_background)
+```
+
+##### Remove:**attitude** to show the importance of attitude with adjusted R^2
+```{r}
+
+ks4score.lm.attitude<-lm(ks4score~as.factor(fiveac)+as.factor(fiveem)+k3_total+as.factor(gender)+as.factor(new_hiquamum)+as.factor(singlepar)+as.factor(house)+as.factor(computer)+as.factor(sen)+as.factor(truancy)+as.factor(exclude)+as.factor(new_FSMband), data=rawdata)
+
+summary(ks4score.lm2)$adj.r.squared
+summary(ks4score.lm.attitude)$adj.r.squared
+change_attitude <- summary(ks4score.lm2)$adj.r.squared-summary(ks4score.lm.attitude)$adj.r.squared
+print(change_attitude)
+```
+
+##### Remove:**study habits** to show the importance of sttudy habits with adjusted R^2
+```{r}
+ks4score.lm.habits<-lm(ks4score~as.factor(fiveac)+as.factor(fiveem)+k3_total+as.factor(gender)+as.factor(new_hiquamum)+as.factor(singlepar)+as.factor(house)+as.factor(pupasp)+as.factor(computer)+as.factor(sen)+as.factor(new_FSMband)+as.factor(new_attitude), data=rawdata)
+
+summary(ks4score.lm.habits)$adj.r.squared
+summary(ks4score.lm2)$adj.r.squared
+change_studyhabits <- summary(ks4score.lm2)$adj.r.squared-summary(ks4score.lm.habits)$adj.r.squared
+print(change_studyhabits)
+```

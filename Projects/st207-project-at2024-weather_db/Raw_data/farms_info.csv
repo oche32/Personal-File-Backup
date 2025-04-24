@@ -1,0 +1,101 @@
+FarmID,FarmName,City,Latitude,Longitude,Owner,FarmEstablishedYear,FarmSizeHectares,FarmType,NumberOfEmployees
+1,Green Valley Farm,London,51.5287,-0.0813,Owner 1,1952,277,Dairy,46
+2,Oakwood Estate,Kent,51.2355,0.4908,Owner 2,1978,127,Greenhouse,14
+3,Riverbend Farm,Essex,51.7726,0.2714,Owner 3,1963,198,Sheep Farm,35
+4,Maple Acres,Hertfordshire,51.7271,-0.2454,Owner 4,1977,143,Mixed Livestock,11
+5,Willow Grove,Surrey,51.2985,-0.5221,Owner 5,1973,296,Horse Breeding,40
+6,Hilltop Pastures,Buckinghamshire,51.9991,-0.9762,Owner 6,1999,223,Free-Range Poultry,17
+7,Highland Ranch,East Sussex,50.8762,0.0501,Owner 7,1953,84,Cattle Ranch,46
+8,Sunrise Meadows,West Sussex,50.9382,-0.4267,Owner 8,1958,250,Arable Crop,17
+9,Crescent Fields,London,51.4943,-0.1356,Owner 9,1986,191,Dairy,49
+10,Harvest Acres,Kent,51.3202,0.4973,Owner 10,1957,286,Greenhouse,10
+11,Brookside Meadows,Essex,51.8024,0.2862,Owner 11,1982,205,Sheep Farm,39
+12,Golden Vale,Hertfordshire,51.7303,-0.1949,Owner 12,1969,290,Mixed Livestock,24
+13,Silver Brook,Surrey,51.2934,-0.5836,Owner 13,2001,83,Horse Breeding,47
+14,Windmill Farm,Buckinghamshire,51.9761,-0.9658,Owner 14,1998,273,Free-Range Poultry,29
+15,Meadow Hill,East Sussex,50.9134,0.0784,Owner 15,2003,117,Cattle Ranch,25
+16,Oakridge Farm,West Sussex,50.9293,-0.4741,Owner 16,1959,160,Arable Crop,31
+17,Seaside Haven,London,51.5238,-0.1293,Owner 17,1970,298,Dairy,14
+18,Highgrove Estate,Kent,51.3133,0.5386,Owner 18,1981,243,Greenhouse,41
+19,Green Gables,Essex,51.7955,0.2024,Owner 19,1965,291,Sheep Farm,22
+20,Stonebridge Farm,Hertfordshire,51.7622,-0.2456,Owner 20,1984,143,Mixed Livestock,9
+21,Meadowland Farms,Surrey,51.2826,-0.5967,Owner 21,1954,158,Horse Breeding,13
+22,Sunnybrook Farm,Buckinghamshire,51.9421,-0.9565,Owner 22,1976,192,Free-Range Poultry,28
+23,Eagle's Nest Farm,East Sussex,50.8789,0.0445,Owner 23,1988,221,Cattle Ranch,12
+24,Fox Hollow,West Sussex,50.9533,-0.4202,Owner 24,1961,246,Arable Crop,44
+25,Bluebell Farm,London,51.5335,-0.1036,Owner 25,1962,224,Dairy,16
+26,Fairview Farm,Kent,51.3022,0.5341,Owner 26,1950,73,Greenhouse,18
+27,Northstar Homestead,Essex,51.7691,0.2347,Owner 27,1967,229,Sheep Farm,43
+28,Lavender Lane Farm,Hertfordshire,51.7695,-0.2302,Owner 28,2004,137,Mixed Livestock,5
+29,Rolling Hills Estate,Surrey,51.3241,-0.5422,Owner 29,1956,213,Horse Breeding,42
+30,Timberland Farm,Buckinghamshire,51.9996,-0.9753,Owner 30,1996,288,Free-Range Poultry,10
+31,Willow Creek Farm,East Sussex,50.8882,0.0874,Owner 31,1975,82,Cattle Ranch,12
+32,Autumn Ridge,West Sussex,50.9424,-0.4589,Owner 32,2002,218,Arable Crop,48
+33,Elmwood Homestead,London,51.5125,-0.1511,Owner 33,1951,190,Dairy,11
+34,Forest Glen Farm,Kent,51.2956,0.5521,Owner 34,1971,124,Greenhouse,46
+35,Granite Ridge,Essex,51.7445,0.2143,Owner 35,2000,103,Sheep Farm,47
+36,Harmony Grove,Hertfordshire,51.7466,-0.2021,Owner 36,1974,210,Mixed Livestock,9
+37,Prairie Wind,Surrey,51.3374,-0.5228,Owner 37,1985,291,Horse Breeding,30
+38,Riverside Ranch,Buckinghamshire,51.9812,-0.9389,Owner 38,1958,221,Free-Range Poultry,39
+39,Royal Oak Farm,East Sussex,50.8945,0.0864,Owner 39,1992,298,Cattle Ranch,13
+40,Serendipity Ranch,West Sussex,50.9613,-0.4377,Owner 40,1979,133,Arable Crop,36
+41,Shady Oaks Farm,London,51.5454,-0.0933,Owner 41,2006,159,Dairy,46
+42,Spring Blossom Farm,Kent,51.2781,0.5367,Owner 42,1952,73,Greenhouse,12
+43,Summerfield Farm,Essex,51.7743,0.2812,Owner 43,1969,106,Sheep Farm,7
+44,Sweetwater Estates,Hertfordshire,51.7634,-0.2541,Owner 44,1983,252,Mixed Livestock,44
+45,Thornberry Farm,Surrey,51.3436,-0.5723,Owner 45,1970,296,Horse Breeding,17
+46,White Oak Meadows,Buckinghamshire,51.9734,-0.9419,Owner 46,1966,148,Free-Range Poultry,25
+47,Wildflower Farm,East Sussex,50.8796,0.0143,Owner 47,1995,255,Cattle Ranch,16
+48,Bramblewood Farm,West Sussex,50.9498,-0.4365,Owner 48,1964,204,Arable Crop,21
+49,Buttercup Farm,London,51.5272,-0.1088,Owner 49,2002,217,Dairy,41
+50,Cottonwood Grove,Kent,51.3139,0.5232,Owner 50,1996,285,Greenhouse,45
+51,Dusty Trail Ranch,Essex,51.7964,0.2804,Owner 51,1958,253,Sheep Farm,22
+52,Emerald Acres,Hertfordshire,51.7324,-0.2198,Owner 52,1955,143,Mixed Livestock,35
+53,Featherstone Farm,Surrey,51.2788,-0.5617,Owner 53,1951,202,Horse Breeding,6
+54,Glenwood Ranch,Buckinghamshire,51.9814,-0.9967,Owner 54,1950,64,Free-Range Poultry,33
+55,Honeybee Farm,East Sussex,50.8999,0.0554,Owner 55,1960,103,Cattle Ranch,45
+56,Ivy Creek Farm,West Sussex,50.9238,-0.4436,Owner 56,1989,235,Arable Crop,23
+57,Juniper Hill,London,51.4901,-0.1438,Owner 57,1982,280,Dairy,18
+58,Lakeview Acres,Kent,51.2881,0.5324,Owner 58,1998,284,Greenhouse,37
+59,Misty Brook Farm,Essex,51.7831,0.2386,Owner 59,1977,255,Sheep Farm,34
+60,Pinecrest Farm,Hertfordshire,51.7482,-0.2234,Owner 60,1959,198,Mixed Livestock,11
+61,Quail Ridge Ranch,Surrey,51.3084,-0.5847,Owner 61,2004,106,Horse Breeding,28
+62,Red Barn Farm,Buckinghamshire,51.9845,-0.9642,Owner 62,1968,231,Free-Range Poultry,25
+63,Snowberry Farm,East Sussex,50.8871,0.0923,Owner 63,1954,123,Cattle Ranch,13
+64,Whispering Pines,West Sussex,50.9139,-0.4724,Owner 64,1995,153,Arable Crop,41
+65,Hidden Hollow,London,51.5317,-0.0938,Owner 65,2003,176,Dairy,32
+66,Oakland Grove,Kent,51.3262,0.4806,Owner 66,1976,156,Greenhouse,38
+67,Blackwood Farm,Essex,51.7424,0.2159,Owner 67,1983,58,Sheep Farm,13
+68,Clearwater Farm,Hertfordshire,51.7646,-0.2119,Owner 68,1984,186,Mixed Livestock,39
+69,Greenhaven Ranch,Surrey,51.3044,-0.5801,Owner 69,1961,261,Horse Breeding,14
+70,Cedar Crest Farm,Buckinghamshire,51.9722,-0.9428,Owner 70,2007,223,Free-Range Poultry,19
+71,Cloverhill Farm,East Sussex,50.9028,0.0124,Owner 71,1972,116,Cattle Ranch,36
+72,Evergreen Farms,West Sussex,50.9343,-0.4102,Owner 72,1994,85,Arable Crop,6
+73,Foxdale Estate,London,51.5092,-0.1193,Owner 73,1956,237,Dairy,16
+74,Rosewood Ranch,Kent,51.2868,0.5122,Owner 74,1975,199,Greenhouse,13
+75,Winding River Farm,Essex,51.7658,0.2056,Owner 75,2005,58,Sheep Farm,40
+76,Stonewood Farm,Hertfordshire,51.7332,-0.2031,Owner 76,1963,233,Mixed Livestock,14
+77,Starlight Farm,Surrey,51.3512,-0.5308,Owner 77,1990,223,Horse Breeding,10
+78,Valleyview Farm,Buckinghamshire,51.9661,-0.9884,Owner 78,1966,240,Free-Range Poultry,47
+79,Moonlight Meadows,East Sussex,50.8812,0.0724,Owner 79,1959,69,Cattle Ranch,44
+80,Sunside Farm,West Sussex,50.9142,-0.4879,Owner 80,1974,127,Arable Crop,31
+81,Riverhaven Ranch,London,51.5253,-0.1264,Owner 81,1978,116,Dairy,48
+82,Tranquil Fields,Kent,51.2951,0.5618,Owner 82,1965,260,Greenhouse,31
+83,Willowbend Farm,Essex,51.7663,0.2251,Owner 83,1968,71,Sheep Farm,14
+84,Golden Harvest,Hertfordshire,51.7456,-0.2593,Owner 84,1956,244,Mixed Livestock,15
+85,Morning Star Farm,Surrey,51.3402,-0.5315,Owner 85,1962,100,Horse Breeding,36
+86,Amberfield Farm,Buckinghamshire,51.9978,-0.9852,Owner 86,1992,206,Free-Range Poultry,34
+87,Brownstone Farms,East Sussex,50.8818,0.0385,Owner 87,1986,285,Cattle Ranch,42
+88,Wildwood Grove,West Sussex,50.9583,-0.4033,Owner 88,1951,59,Arable Crop,49
+89,Misty Mountain Farm,London,51.5186,-0.1404,Owner 89,1960,215,Dairy,21
+90,Peach Creek Ranch,Kent,51.3317,0.5051,Owner 90,1977,271,Greenhouse,45
+91,Ridgeview Farm,Essex,51.7494,0.2843,Owner 91,1974,169,Sheep Farm,10
+92,Canyon Brook,Hertfordshire,51.7794,-0.2202,Owner 92,1985,179,Mixed Livestock,39
+93,Spring Hollow Farm,Surrey,51.2813,-0.5291,Owner 93,1961,229,Horse Breeding,17
+94,Mountain View Acres,Buckinghamshire,51.9652,-0.9651,Owner 94,2006,217,Free-Range Poultry,24
+95,Green Valley Farm,East Sussex,50.9056,0.0643,Owner 95,1971,108,Cattle Ranch,50
+96,Oakwood Estate,West Sussex,50.9447,-0.4911,Owner 96,1967,201,Arable Crop,8
+97,Riverbend Farm,London,51.4986,-0.0762,Owner 97,1975,256,Dairy,33
+98,Maple Acres,Kent,51.3052,0.5214,Owner 98,1993,242,Greenhouse,9
+99,Willow Grove,Essex,51.7832,0.2109,Owner 99,2000,270,Sheep Farm,47
+100,Hilltop Pastures,Hertfordshire,51.7379,-0.2361,Owner 100,1972,245,Mixed Livestock,35
